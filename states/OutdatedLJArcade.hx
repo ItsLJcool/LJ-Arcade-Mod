@@ -4,52 +4,55 @@ import logging.LogsOverlay;
 import Settings;
 import lime.app.Future;
 import sys.Http;
-import UpdateState;
+import StringTools;
 
+var anims;
 function create() {
     var bg:FlxSprite = new FlxSprite(0,0, Paths.image('menuBGYoshiCrafter', 'preload'));
     bg.setGraphicSize(FlxG.width, FlxG.height);
     bg.screenCenter();
     add(bg);
+
     var data = null;
     var futureThread = new Future(function() {
-        data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/releases/data/changes.txt");
+        data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/staging/data/changes.txt");
         data.onError = function(msg:String) {
             data = null;
         }
         data.request(true);
     });
-    if (data == null || thingsToGet == null) {
-        // FlxG.switchState(new MainMenuState());
-        // FlxG.camera.alpha = 0;
-    }
+    
     var text = (data == null) ? "Can't get new changelog." : data;
     var outdatedText:AlphabetOptimized = new AlphabetOptimized(100,100, text, false, 0.5);
     add(outdatedText);
-    
-	var update = new FlxSprite(10, 0);
-	update.frames = Paths.getSparrowAtlas("outdatedAssets", "preload");
-	update.animation.addByPrefix("anim", "space to check github");
-	update.animation.play("anim");
-	update.setGraphicSize(Std.int(update.width * 0.75));
-    update.screenCenter();
-    update.y = FlxG.height - update.height - 15;
-    add(update);
+
+    anims = ['enter to update', 'space to check github', 'backspace to skip'];
+    if (data == null) anims = ['backspace to skip'];
+
+    for (i in 0...anims.length) {
+        var b = new FlxSprite(10, 0);
+        b.frames = Paths.getSparrowAtlas("outdatedAssets", "preload");
+        b.animation.addByPrefix("anim", anims[i]);
+        b.animation.play("anim");
+        b.setGraphicSize(Std.int(b.width * 0.75));
+        b.y = 710 - b.height;
+        b.x = ((FlxG.width) * ((i + 0.5) / anims.length)) - (b.width / 2);
+        b.antialiasing = true;
+        add(b);
+    }
 }
 
-function colorToShaderVec(color:Int, ?rgbUh:Bool = false) {
-    if (color == null) return;
-	if (rgbUh == null) rgbUh = false;
-	var r = (color >> 16) & 0xff;
-	var g = (color >> 8) & 0xff;
-	var b = (color & 0xff);
-	return (rgbUh) ? {r: r, g: g, b: b, a: (color >> 24) & 0xff} : [(r)/100, (g)/100, (b)/100];
-}
-
-var updating:Bool = false;
 function update() {
-    if (FlxG.keys.justPressed.SPACE && !updating) {
-        FlxG.openURL('https://github.com/ItsLJcool/LJ-Arcade-Mod/tree/releases');
+    if (FlxG.keys.justPressed.ENTER && StringTools.contains(anims, "enter to update")) {
+        FlxG.switchState(new ModState("UpdateMod", mod, ["https://github.com/ItsLJcool/LJ-Arcade-Mod/releases/download/"]));
+    }
+    if (FlxG.keys.justPressed.SPACE && StringTools.contains(anims, "space to check github")) {
+        FlxG.openURL('https://github.com/ItsLJcool/LJ-Arcade-Mod/releases');
+        LogsOverlay.hscript.variables.set("skippedUpdate", true);
+        FlxG.switchState(new MainMenuState());
+    }
+    if (FlxControls.anyJustPressed([8, 27]) && StringTools.contains(anims, "backspace to skip")) {
+        LogsOverlay.hscript.variables.set("skippedUpdate", true);
         FlxG.switchState(new MainMenuState());
     }
 }
