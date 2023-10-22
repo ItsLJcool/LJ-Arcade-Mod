@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="ratingsSheet.png"><SubTexture name="A0000" x="0" y="535" width="342" height="474" frameX="0" frameY="0" frameWidth="342" frameHeight="474" />
+<SubTexture name="B0000" x="689" y="535" width="318" height="470" frameX="0" frameY="0" frameWidth="318" frameHeight="470" />
+<SubTexture name="C0000" x="681" y="0" width="336" height="475" frameX="0" frameY="0" frameWidth="336" frameHeight="475" />
+<SubTexture name="D0000" x="1017" y="0" width="342" height="456" frameX="0" frameY="0" frameWidth="342" frameHeight="456" />
+<SubTexture name="E0000" x="342" y="535" width="347" height="473" frameX="0" frameY="0" frameWidth="347" frameHeight="473" />
+<SubTexture name="F0000" x="0" y="0" width="339" height="535" frameX="0" frameY="0" frameWidth="339" frameHeight="535" />
+<SubTexture name="minus0000" x="1017" y="662" width="202" height="114" frameX="0" frameY="0" frameWidth="202" frameHeight="114" />
+<SubTexture name="plus0000" x="1017" y="456" width="202" height="206" frameX="0" frameY="0" frameWidth="202" frameHeight="206" />
+<SubTexture name="S0000" x="339" y="0" width="342" height="499" frameX="0" frameY="0" frameWidth="342" frameHeight="499" />
+</TextureAtlas>

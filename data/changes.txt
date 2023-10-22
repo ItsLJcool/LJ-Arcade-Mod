@@ -1,0 +1,13 @@
+[ 2.1.1 Alpha Changes ]
+- Made LJ Arcade A Public Alpha Testing.
+- Added Update System within mod itself
+- Added RPC (Displays if you are not on most recent version)
+- Added README.md files in `ljArcade` folder (Documentation on shit)
+
+[ Next Update Goals ]
+- New UI on MainMenuState and Mods
+- XP System / Milestone
+- Discord RPC Editables
+- More Ratings Editables
+- Shop
+- Skins

@@ -1,0 +1,36 @@
+{
+	"discordRpc": "1165102365037301881",
+	"skinnableGFs": [],
+	"locked": false,
+	"BFskins": [],
+	"downloadLink": null,
+	"name": "LJ Arcade",
+	"keyNumbers": [
+		4
+	],
+	"description": "LJ's Arcade Mod",
+	"intro": {
+		"newgrounds": "newgrounds",
+		"authors": [
+			"ninjamuffin99",
+			"phantomArcade",
+			"kawaisprite",
+			"evilsk8er"
+		],
+		"assoc": [
+			"In association",
+			"with"
+		],
+		"gameName": [
+			"Friday Night Funkin'",
+			"YoshiCrafter",
+			"Engine"
+		],
+		"present": "present",
+		"bpm": 102
+	},
+	"skinnableBFs": [],
+	"titleBarName": "LJ's Arcade Mod",
+	"downloadLinkAlt": null,
+	"GFskins": []
+}
