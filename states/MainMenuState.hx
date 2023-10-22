@@ -70,7 +70,7 @@ function doRPCupdate() {
         var oldArcade = (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") == true) ? "arcadegaming" : "oldarcadebuild";
         var isUpToData = "";
         if (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") == null) {
-            isUpToData = "Unable to get version data. Seems like a custom build or an error. Please Contact @ItsLJcool on Discord if it's an Error";
+            isUpToData = "Unable to check version control. Current Known Version: [ver]";
         } else {
             isUpToData = (LogsOverlay.hscript.variables.get("isMostUpToDateArcade"))
             ? "Most Updated Version of LJ Arcade ([ver])" : "Outdated Version! ([ver])";
@@ -87,13 +87,9 @@ function doRPCupdate() {
                 case "titlestate":
                     rpc.state = "YoshiCrafterEngine - LJ Arcade"; // top text
                     rpc.details = "Looking at the Intro"; // bottom text
-                    rpc.largeImageKey = oldArcade;
-                    rpc.largeImageText = "LJ Arcade";
                 case "mainmenustate":
                     rpc.state = "LJ Arcade - Mod Selector";
                     rpc.details = "Selecting A YCE Mod to play";
-                    rpc.largeImageKey = oldArcade;
-                    rpc.largeImageText = "LJ Arcade";
                 case "mod_support_stuff.modstate":
                     switch(FlxG.state._scriptName.toLowerCase()) {
                         case "modediting":
@@ -110,11 +106,16 @@ function doRPCupdate() {
                                 case "menu":
                                     rpc.details = "LJ Tokens: " + save.data.ljTokens;
                             }
-                            rpc.largeImageKey = oldArcade;
-                            rpc.largeImageText = "LJ Arcade";
                         case "ratingssay":
-                            rpc.largeImageKey = oldArcade;
-                            rpc.largeImageText = "LJ Arcade";
+                            rpc.state = "LJ Arcade - Ratings"; // top text
+                            rpc.details = FlxG.state.script.getVariable("challengeText");
+                            rpc.largeImageKey = "rating";
+                            rpc.largeImageText = "LJ Arcade"
+                            + FlxG.state.script.getVariable("ratingOrder")[FlxG.state.script.getVariable("ratingInt")] + " Rating";
+                        case "outdatedljarcade":
+                            rpc.largeImageKey = "installingmod";
+                            rpc.largeImageText = "Outdated Version! Updating";
+                            
                     }
             }
 
@@ -132,24 +133,20 @@ function create() {
         var data = null;
         LogsOverlay.hscript.variables.set("isMostUpToDateArcade", false);
         var futureThread = new Future(function() {
-            data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-s-Arcade-Mod/main/data/version.txt");
+            data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/releases/data/version.txt");
             data.onError = function(msg:String) {
                 data = null;
             }
             data.request(true);
         });
         if (data == null) LogsOverlay.hscript.variables.set("isMostUpToDateArcade", null);
-        else {
-            LogsOverlay.hscript.variables.set("isMostUpToDateArcade", Std.string(data) == LogsOverlay.hscript.variables.get("ljArcadeVersion"));
-        }
+        else LogsOverlay.hscript.variables.set("isMostUpToDateArcade", Std.string(data) == LogsOverlay.hscript.variables.get("ljArcadeVersion"));
 
         FlxG.signals.preUpdate.add(function() {
             if (FlxG.state.subState == null
                 && (!LogsOverlay.hscript.variables.exists("usingLJarcade") || !LogsOverlay.hscript.variables.get("usingLJarcade"))
                 && Settings.engineSettings.data.selectedMod != mod) {
-                    trace("SWITCHED MOD");
                     LogsOverlay.hscript.variables.remove("addUpdateRPC");
-                    trace(LogsOverlay.hscript.variables.exists("addUpdateRPC"));
                     FlxG.signals.preUpdate.removeAll();
             }
             doRPCupdate();

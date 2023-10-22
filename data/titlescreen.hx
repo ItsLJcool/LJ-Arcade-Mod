@@ -8,6 +8,7 @@ import Type;
 import Settings;
 import lime.app.Future;
 import sys.Http;
+import StringTools;
 
 var crafterEngineLogo:FlxSprite = null;
 var gfDancing:FlxSprite = null;
@@ -40,7 +41,7 @@ function create() {
         var data = null;
         LogsOverlay.hscript.variables.set("isMostUpToDateArcade", false);
         var futureThread = new Future(function() {
-            data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-s-Arcade-Mod/main/data/version.txt");
+            data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/releases/data/version.txt");
             data.onError = function(msg:String) {
                 data = null;
             }
@@ -62,9 +63,11 @@ function create() {
 }
 
 function onUpdateCheck() {
-    if (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") != null && !LogsOverlay.hscript.variables.get("isMostUpToDateArcade")) {
-        FlxG.switchState(new ModState("OutdatedLJArcade", mod, []));
-    }
+
+    // for now
+    // if (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") != true) {
+    //     FlxG.switchState(new ModState("OutdatedLJArcade", mod, []));
+    // }
 }
 
 function doRPCupdate() {
@@ -79,7 +82,7 @@ function doRPCupdate() {
         var oldArcade = (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") == true) ? "arcadegaming" : "oldarcadebuild";
         var isUpToData = "";
         if (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") == null) {
-            isUpToData = "Unable to check version controll. Known Version: [ver]";
+            isUpToData = "Unable to check version control. Current Known Version: [ver]";
         } else {
             isUpToData = (LogsOverlay.hscript.variables.get("isMostUpToDateArcade"))
             ? "Most Updated Version of LJ Arcade ([ver])" : "Outdated Version! ([ver])";
@@ -96,13 +99,9 @@ function doRPCupdate() {
                 case "titlestate":
                     rpc.state = "YoshiCrafterEngine - LJ Arcade"; // top text
                     rpc.details = "Looking at the Intro"; // bottom text
-                    rpc.largeImageKey = oldArcade;
-                    rpc.largeImageText = "LJ Arcade";
                 case "mainmenustate":
                     rpc.state = "LJ Arcade - Mod Selector";
                     rpc.details = "Selecting A YCE Mod to play";
-                    rpc.largeImageKey = oldArcade;
-                    rpc.largeImageText = "LJ Arcade";
                 case "mod_support_stuff.modstate":
                     switch(FlxG.state._scriptName.toLowerCase()) {
                         case "modediting":
@@ -119,11 +118,16 @@ function doRPCupdate() {
                                 case "menu":
                                     rpc.details = "LJ Tokens: " + save.data.ljTokens;
                             }
-                            rpc.largeImageKey = oldArcade;
-                            rpc.largeImageText = "LJ Arcade";
                         case "ratingssay":
-                            rpc.largeImageKey = oldArcade;
-                            rpc.largeImageText = "LJ Arcade";
+                            rpc.state = "LJ Arcade - Ratings"; // top text
+                            rpc.details = FlxG.state.script.getVariable("challengeText");
+                            rpc.largeImageKey = "rating";
+                            rpc.largeImageText = "LJ Arcade"
+                            + FlxG.state.script.getVariable("ratingOrder")[FlxG.state.script.getVariable("ratingInt")] + " Rating";
+                        case "outdatedljarcade":
+                            rpc.largeImageKey = "installingmod";
+                            rpc.largeImageText = "Outdated Version! Updating";
+                            
                     }
             }
 
@@ -135,7 +139,7 @@ function beatHit() {
 	if (gfDancing != null)
 		gfDancing.animation.play((gfDancing.animation.curAnim.name == "danceLeft") ? "danceRight" : "danceLeft");
 }
-var updateDiscordRPC:Float = 0;
+var updateDiscordRPC:Float = 2;
 function update(elapsed:Float) {
     updateDiscordRPC += elapsed;
     if (updateDiscordRPC >= 2) {

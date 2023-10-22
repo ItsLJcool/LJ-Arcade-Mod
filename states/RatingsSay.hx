@@ -99,6 +99,9 @@ var ratingOrder:Array<String> = ["F", "E", "D", "C", "B", "A", "S"];
 
 var ratingInfo:Array<Dynamic> = [];
 
+var challengeText = (playState.doingChallenge) ?
+	ModSupport.modSaves[mod].data.challengesData.get(editingMod).data[playState.theChallengeWasCompleted.dataID].vars.daText :
+	"( Freeplay ) | Completed " + StringTools.replace(playState.song, "-", " ");
 function makeUI() {
 	omogu = new CustomShader(Paths.shader("amongSus", mod));
 	setOmogusShador(omogu, {
@@ -134,9 +137,6 @@ function makeUI() {
 	topSpr.antialiasing = true;
 	topSpr.shader = omogu;
 	add(topSpr);
-	var challengeText = (playState.doingChallenge) ?
-	ModSupport.modSaves[mod].data.challengesData.get(editingMod).data[playState.theChallengeWasCompleted.dataID].vars.daText :
-	"( Freeplay ) | Completed " + StringTools.replace(playState.song, "-", " ");
 
 	var topChallenge:AlphabetOptimized = new AlphabetOptimized(topSpr.x + 15, topSpr.y, challengeText, false, Math.min(0.6, (topSpr.width - 75) / (35 * challengeText.length)));
 	topChallenge.setPosition(topSpr.x + 15, topSpr.y + topSpr.height/2 - topChallenge.height/2 - 7);
@@ -293,6 +293,7 @@ function startRating(time:Float) {
 			if (cheated) die = 1;
 			new FlxTimer().start(die, function () {
 				if (cheated) {
+					ratingInt = 0;
 					(ratingAtlas) ? ratingSpr.animation.play(ratingOrder[0], true) : ratingSpr.loadGraphic(Paths.image("ratingState/ratings/" + ratingOrder[0]));
 					var uh = colorToShaderVec(ratingColors.get(ratingOrder[0]), true);
 					ratingSpr.shader.setColors(uh.r, uh.g, uh.b);
