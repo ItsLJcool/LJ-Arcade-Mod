@@ -102,7 +102,7 @@ var ratingInfo:Array<Dynamic> = [];
 var challengeText = "";
 function makeUI() {
 	challengeText = (playState.doingChallenge) ?
-	ModSupport.modSaves[mod].data.challengesData.get(editingMod).data[playState.theChallengeWasCompleted.dataID].vars.daText :
+	ModSupport.modSaves[mod].data.challengesData.get(editingMod).data[playState.theChallengeWasCompleted.dataID.itemID].vars.daText :
 	"( Freeplay ) | Completed " + StringTools.replace(playState.song, "-", " ");
 	omogu = new CustomShader(Paths.shader("amongSus", mod));
 	setOmogusShador(omogu, {

@@ -79,15 +79,15 @@ function create() {
         trace(id);
         trace(challengeID);
         if (id.songSpecific == null) id.songSpecific = false;
-        if (id == null || !doingChallenge || ModSupport.modSaves[loadedMod].data.challengesData.get(editingMod).data[challengeID].vars.daData.get("hasCompletedChallenge")) return;
+        if (id == null || !doingChallenge || ModSupport.modSaves[loadedMod].data.challengesData.get(editingMod).data[challengeID.itemID].vars.daData.get("hasCompletedChallenge")) return;
         if (challengeID.challengeID == id.challengeID
         || (challengeID.songSpecific == id.songSpecific
         && challengeID.challengeID == id.challengeID
         && challengeID.songID == id.songID)) {
             trace("D");
         theChallengeWasCompleted = { hasCompleted: true, dataID: challengeID };
-        ModSupport.modSaves[loadedMod].data.challengesData.get(editingMod).data[challengeID].vars.daData.set("hasCompletedChallenge", true);
-        saveChallengesData.data[challengeID].vars.daData.set("hasCompletedChallenge", true);
+        ModSupport.modSaves[loadedMod].data.challengesData.get(editingMod).data[challengeID.itemID].vars.daData.set("hasCompletedChallenge", true);
+        saveChallengesData.data[challengeID.itemID].vars.daData.set("hasCompletedChallenge", true);
         ModSupport.modSaves[loadedMod].flush();
 
         var newGroup = new FlxTypedGroup();
@@ -100,7 +100,7 @@ function create() {
         text.updateHitbox();
         text.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
     
-        var icon:HealthIcon = new HealthIcon(saveChallengesData.data[challengeID].vars.daData.get("icon"), false, editingMod);
+        var icon:HealthIcon = new HealthIcon(saveChallengesData.data[challengeID.itemID].vars.daData.get("icon"), false, editingMod);
         icon.auto = false;
         icon.cameras = [completedCamera];
         icon.updateHitbox();
