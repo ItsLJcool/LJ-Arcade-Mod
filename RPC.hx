@@ -8,8 +8,8 @@ import Type;
 import Settings;
 import lime.app.Future;
 import sys.Http;
-import StringTools;
 import sys.FileSystem;
+import StringTools;
 
 function create() {
 
@@ -23,19 +23,12 @@ function create() {
         LogsOverlay.hscript.variables.set("updateDiscordRPC", 0);
         LogsOverlay.hscript.variables.set("addUpdateRPC", true);
 
-        LogsOverlay.hscript.variables.set("ljArcadeVersion", Assets.getText(Paths.txt("version")).split("\n")[0]);
+        LogsOverlay.hscript.variables.set("ljArcadeVersion", StringTools.trim(Assets.getText(Paths.txt("version")).split("\n")[0]));
 
-        var data = null;
-        LogsOverlay.hscript.variables.set("isMostUpToDateArcade", false);
-        var futureThread = new Future(function() {
-            data = new Http("https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/staging/data/version.txt");
-            data.onError = function(msg:String) {
-                data = null;
-            }
-            data.request(true);
-        });
-        if (data == null) LogsOverlay.hscript.variables.set("isMostUpToDateArcade", null);
-        else LogsOverlay.hscript.variables.set("isMostUpToDateArcade", Std.string(data) == LogsOverlay.hscript.variables.get("ljArcadeVersion"));
+        var data:String = Http.requestUrl('https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/staging/data/version.txt');
+        data = StringTools.trim(data.split("\n")[0]);
+
+        LogsOverlay.hscript.variables.set("isMostUpToDateArcade", Std.string(data) == LogsOverlay.hscript.variables.get("ljArcadeVersion"));
 
         FlxG.signals.preUpdate.add(function() {
             if (FlxG.state.subState == null
