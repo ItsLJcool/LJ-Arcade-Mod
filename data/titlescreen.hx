@@ -37,13 +37,6 @@ function create() {
     RPCScript.executeFunc("create");
 }
 
-function onUpdateCheck() {
-    if (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") != true 
-        && !LogsOverlay.hscript.variables.exists("skippedUpdate")) {
-        FlxG.switchState(new ModState("OutdatedLJArcade", mod, []));
-    }
-}
-
 function beatHit() {
 	if (gfDancing != null)
 		gfDancing.animation.play((gfDancing.animation.curAnim.name == "danceLeft") ? "danceRight" : "danceLeft");

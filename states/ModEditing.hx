@@ -152,7 +152,19 @@ var ljTokenTweens:Array<FlxTweens> = [];
 function create(modThing:String, ?_modChallengeJust:Dyanimc) {
     FlxG.signals.postStateSwitch.removeAll();
     FlxG.signals.postUpdate.removeAll();
+    FlxG.signals.preStateCreate.removeAll();
     LogsOverlay.hscript.variables.set("usingLJarcade", true);
+
+    FlxG.signals.preStateCreate.add(function() {
+        if (!Std.isOfType(FlxG.game._requestedState, PlayState)) return;
+        // trace(FlxG.state.DiscordClient); // just to see what it can do
+        /** 
+            Attempting to override PlayState's class for `DiscordClient`
+            and setting all the possible functions to `return;` and do nothing
+            so I can do my own RPC
+        **/
+        
+    });
     FlxG.signals.postStateSwitch.add(function() { // THIS IS BEFORE CREATE FOR THE SCRIPTS!!
         if (!Std.isOfType(FlxG.game._requestedState, PlayState)) return;
         FlxG.state.scripts.addScript(mod + "/states/ModTrack.hx");
@@ -523,6 +535,7 @@ function update(elapsed:Float) {
             case "menu":
                 FlxG.signals.postStateSwitch.removeAll();
                 FlxG.signals.postUpdate.removeAll();
+                FlxG.signals.preStateCreate.removeAll();
                 LogsOverlay.hscript.variables.set("usingLJarcade", false);
                 FlxG.switchState(new MainMenuState());
             case "freeplay":

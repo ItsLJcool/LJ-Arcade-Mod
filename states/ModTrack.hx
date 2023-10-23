@@ -18,16 +18,16 @@ var theChallengeWasCompleted:Array<Dynamic> = { hasCompleted: false };
 var tokenMultiplier:Int = 1;
 var challengeScript = null;
 
-// function onOpenSubstate(SubState) {
-//     if (Std.isOfType(SubState, PauseSubState)) {
-//         if (SubState.menuItems[2].toLowerCase() == "developer options") {
-//             SubState.menuItems.remove(SubState.menuItems[2]);
-//             SubState.grpMenuShit.remove(SubState.grpMenuShit.members[2], true);
-//             SubState.changeSelection();
-//             trace(SubState.menuItems[2]);
-//         }
-//     }
-// }
+function onOpenSubstate(SubState) {
+    if (Std.isOfType(SubState, PauseSubState)) {
+        if (SubState.menuItems[2].toLowerCase() == "developer options") {
+            SubState.menuItems.remove(SubState.menuItems[2]);
+            SubState.grpMenuShit.remove(SubState.grpMenuShit.members[2], true);
+            SubState.changeSelection();
+            trace(SubState.menuItems[2]);
+        }
+    }
+}
 
 function create() {
     FlxG.signals.postUpdate.removeAll();

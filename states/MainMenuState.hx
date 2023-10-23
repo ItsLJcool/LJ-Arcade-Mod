@@ -46,8 +46,10 @@ function create() {
     RPCScript.setVariable("mod", mod);
     RPCScript.loadFile();
     RPCScript.executeFunc("create");
+    
     if (LogsOverlay.hscript.variables.get("isMostUpToDateArcade") != true 
         && !LogsOverlay.hscript.variables.exists("skippedUpdate")) {
+        FlxG.camera.alpha = 0;
         FlxG.switchState(new ModState("OutdatedLJArcade", mod, []));
     }
     
