@@ -24,6 +24,7 @@ import flixel.group.FlxTypedSpriteGroup;
 import openfl.utils.ByteArrayData;
 import sys.io.Process;
 import openfl.system.System;
+import sys.Http;
 
 var url:String = "";
 var tag:String = "";
@@ -51,7 +52,7 @@ function new(_url:String) {
             }
         ]));
     }
-    var version = Assets.getText(Paths.txt("version")).split("\n");
+    var version:String = Http.requestUrl('https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/staging/data/version.txt').split("\n");
     downloadExtenstion = version[1];
     url = _url + StringTools.trim(version[0]) + "/" + StringTools.trim(version[1]);
 }
@@ -136,7 +137,7 @@ function loadYCEmod() {
             
             trace('404 Error');
         } else {
-            openSubState(new MenuMessage('Failed to download the .ycemod. Make sure you have a working internet connection, and try again.\n\nError ID: '+ e.errorID +'\n'+ e.text, [
+            openSubState(new MenuMessage('Failed to download the .ycemod. Make sure you have a working internet connection, and try again.\n\nError ID: '+ e.errorID +'\n'+ e.text + "\n\n"+url, [
                 {
                     label: "Play Mod Without Updating",
                     callback: function() {
