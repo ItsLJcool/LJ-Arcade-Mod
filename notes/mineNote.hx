@@ -3,7 +3,8 @@ enableRating = false;
 
 function create() {
     var isPixelNote = false;
-    if (PlayState.noteScripts[0].metadata.noteType.split(":")[1] != null) isPixelNote = (PlayState.noteScripts[0].metadata.noteType.split(":")[1].toLowerCase() == "pixel note");
+    if (PlayState.noteScripts[0].metadata.noteType.split(":")[1] != null && FlxG.state.noteScripts[0].metadata.noteType.split(":")[0].toLowerCase() != null) isPixelNote = (PlayState.noteScripts[0].metadata.noteType.split(":")[0].toLowerCase() == "pixel note" || PlayState.noteScripts[0].metadata.noteType.split(":")[1].toLowerCase() == "pixel note");
+    if (PlayState.noteScripts[0].metadata.noteType.toLowerCase() == "pixel note") isPixelNote = true;
     var thing = (isPixelNote) ? [17, 17] : [133, 128];
     note.loadGraphic((isPixelNote) ? Paths.image("notes/mines/pixel/mines") : Paths.image("notes/mines/base/mines"), true, thing[0], thing[1]);
     note.colored = false;

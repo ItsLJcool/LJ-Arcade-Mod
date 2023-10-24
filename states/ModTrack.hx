@@ -11,6 +11,7 @@ import Conductor;
 import flixel.group.FlxTypedGroup;
 import PauseSubState;
 import ScoreText;
+import DiscordClient;
 import StringTools;
 
 var theChallengeWasCompleted:Array<Dynamic> = { hasCompleted: false };
@@ -24,7 +25,6 @@ function onOpenSubstate(SubState) {
             SubState.menuItems.remove(SubState.menuItems[2]);
             SubState.grpMenuShit.remove(SubState.grpMenuShit.members[2], true);
             SubState.changeSelection();
-            trace(SubState.menuItems[2]);
         }
     }
 }
@@ -155,12 +155,17 @@ function create() {
     challengeScript.loadFile();
     challengeScript.executeFunc("create", []);
     }
+    DiscordClient.switchRPC("1165102365037301881");
 }
 
 var songEnded:Bool = false;
 function musicstart() {
     ModSupport.modSaves[loadedMod].data.challengesData.get(editingMod).data[challengeID].vars.daData.set("hasCompletedChallenge", false);
     ModSupport.modSaves[loadedMod].flush();
+}
+
+function onPreUpdatePresence() {
+    return false;
 }
 
 function onPreEndSong() {

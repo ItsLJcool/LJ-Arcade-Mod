@@ -1,2 +1,2 @@
-2.1.4-alpha
-LJ-Arcade-Mod.ycemod
+2.1.5-alpha
+LJ-s-Arcade-Mod.ycemod

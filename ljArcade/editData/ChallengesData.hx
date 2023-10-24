@@ -90,8 +90,9 @@ function musicstart() {
 var mineNoteType:Int = -1;
 var isPixelNote:Bool = false;
 function createPost() {
-    if (PlayState.noteScripts[0].metadata.noteType.split(":")[1] != null)
-        isPixelNote = (PlayState.noteScripts[0].metadata.noteType.split(":")[1].toLowerCase() == "pixel note");
+    if (PlayState.noteScripts[0].metadata.noteType.split(":")[1] != null && FlxG.state.noteScripts[0].metadata.noteType.split(":")[0].toLowerCase() != null)
+        isPixelNote = (PlayState.noteScripts[0].metadata.noteType.split(":")[0].toLowerCase() == "pixel note" || PlayState.noteScripts[0].metadata.noteType.split(":")[1].toLowerCase() == "pixel note");
+    if (PlayState.noteScripts[0].metadata.noteType.toLowerCase() == "pixel note") isPixelNote = true;
     if (challengeID.challengeID == 10) {
         var invalid = [];
         for (note in PlayState.unspawnNotes) {

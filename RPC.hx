@@ -10,6 +10,7 @@ import lime.app.Future;
 import sys.Http;
 import sys.FileSystem;
 import StringTools;
+import Date;
 
 function create() {
 
@@ -64,9 +65,9 @@ function create() {
     @:optional var button2Url:String;
 **/
 function doRPCupdate() {
-    if (Type.getClassName(Type.getClass(FlxG.state)).toLowerCase() == "playstate") return;
+    // if (Type.getClassName(Type.getClass(FlxG.state)).toLowerCase() == "playstate") return;
     if (FlxG.state != FlxG.game._requestedState) {
-        LogsOverlay.hscript.variables.set("updateDiscordRPC", 2);
+        LogsOverlay.hscript.variables.set("updateDiscordRPC", 1.9);
     }
     var update = LogsOverlay.hscript.variables.get("updateDiscordRPC");
     LogsOverlay.hscript.variables.set("updateDiscordRPC", update + FlxG.elapsed);
@@ -82,13 +83,40 @@ function doRPCupdate() {
         }
         var rpc = {
             state: "YoshiCrafterEngine - LJ Arcade",
-            details: "Stating at something (because i forgot to add a case for whatever State I am in)",
+            details: "Oops, no RPC in " + Type.getClassName(Type.getClass(FlxG.state)).toLowerCase(),
             largeImageKey: oldArcade,
-            largeImageText: "LJ Arcade",
+            largeImageText: (LogsOverlay.hscript.variables.get("isMostUpToDateArcade")) ? "LJ Arcade" : "Outdated Arcade",
             smallImageKey: (LogsOverlay.hscript.variables.get("isMostUpToDateArcade")) ? "check_mini" : "minus_mini",
             smallImageText: StringTools.replace(isUpToData, "[ver]", LogsOverlay.hscript.variables.get("ljArcadeVersion")),
         };
             switch(Type.getClassName(Type.getClass(FlxG.state)).toLowerCase()) {
+                case "playstate":
+                    var isPixel = false;
+                    if (FlxG.state.noteScripts[0].metadata.noteType.split(":")[1] != null && FlxG.state.noteScripts[0].metadata.noteType.split(":")[0].toLowerCase() != null)
+                        isPixel = (FlxG.state.noteScripts[0].metadata.noteType.split(":")[0].toLowerCase() == "pixel note"
+                        || FlxG.state.noteScripts[0].metadata.noteType.split(":")[1].toLowerCase() == "pixel note");
+                    if (FlxG.state.noteScripts[0].metadata.noteType.toLowerCase() == "pixel note") isPixel = true;
+                    var thing = (isPixel) ? oldArcade + "-pixel" : oldArcade;
+                    rpc.largeImageKey = thing;
+                    rpc.state = "LJ Arcade";
+                    if (FlxG.state.subState != null) {
+                        rpc.details = "Paused |  " + StringTools.replace(FlxG.state.SONG.song.toLowerCase(), "-", " "); // bottom text
+                    } else {
+
+                        var endTimestamp = (FlxG.sound.music != null) ? FlxG.sound.music.length : 0;
+    
+                        var startTimestamp:Float = (FlxG.sound.music != null) ? Date.now().getTime() - FlxG.sound.music.time : 0;
+    
+                        if (endTimestamp > 0)  endTimestamp = startTimestamp + endTimestamp;
+                        rpc.startTimestamp = Std.int(startTimestamp / 1000);
+                        rpc.endTimestamp = Std.int(endTimestamp / 1000);
+                        for (script in FlxG.state.scripts.scripts) {
+                            if (script.fileName.toLowerCase() != "modtrack.hx") continue;
+                            rpc.state = (script.getVariable("doingChallenge")) ? "LJ Arcade - Doing A Challenge" : "LJ Arcade - Freeplay";
+                            break;
+                        }
+                        rpc.details = "Playing " + StringTools.replace(FlxG.state.SONG.song.toLowerCase(), "-", " "); // bottom text
+                    }
                 case "titlestate":
                     rpc.state = "YoshiCrafterEngine - LJ Arcade"; // top text
                     rpc.details = "Looking at the Intro"; // bottom text
@@ -108,7 +136,7 @@ function doRPCupdate() {
                                     rpc.details = "Choosing A Song (Freeplay)";
                                 case "medals":
                                     rpc.details = "Picking A Challenge";
-                                case "menu":
+                                default:
                                     rpc.details = "LJ Tokens: " + save.data.ljTokens;
                             }
                         case "ratingssay":
@@ -129,7 +157,6 @@ function doRPCupdate() {
                             rpc.largeImageText = FlxG.state.script.getVariable("percentLabel").text;
                     }
             }
-
         DiscordRpc.presence(rpc);
     }
 }
