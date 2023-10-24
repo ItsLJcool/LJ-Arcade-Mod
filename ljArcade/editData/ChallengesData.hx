@@ -84,6 +84,11 @@ function musicstart() {
                 strum.scrollSpeed /= PlayState.inst.pitch;
             }
         }
+        for (note in PlayState.unspawnNotes) {
+            note.maxEarlyDiff *= PlayState.inst.pitch;
+            note.maxLateDiff *= PlayState.inst.pitch;
+            note.missDiff *= PlayState.inst.pitch;
+        }
     }
 }
 
