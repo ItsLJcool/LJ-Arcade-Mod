@@ -48,6 +48,7 @@ var modChallengeJust:Array<Dyanimc> = {hasCompleted: false};
     [2.0.0] - fucking redid how data is saved. (fixed in 2.0 :trollface:)
     [2.0.1] - I think the save.data is good yipee
     [2.1.0] - Fixed an issue with challenges for some reason not wanting to complete ;-;
+    [2.1.1] - oops i suck at coding
 
     # Upcomming
     [2.2.0] - Might want to make an "XP" System instead of just tokens.
@@ -81,9 +82,7 @@ var modChallengeJust:Array<Dyanimc> = {hasCompleted: false};
     `level 20` - idk (???)
 
 **/
-
-// use CoolUtil.getMostPresentColor(icon.pixels); for new UI
-var challengesVersion:String = "2.1.0";
+var challengesVersion:String = "2.1.1";
 
 function new(modYay:String, ?_modChallengeJust:Dyanimc) {
     if (_modChallengeJust != null) modChallengeJust = _modChallengeJust;
@@ -139,9 +138,6 @@ var menuItemsType = [
 
 var ljTokenTweens:Array<FlxTweens> = [];
 function create(modThing:String, ?_modChallengeJust:Dyanimc) {
-    if (jsonContent != null) {
-        makeSaveData();
-    }
     FlxG.signals.postStateSwitch.removeAll();
     FlxG.signals.postUpdate.removeAll();
     LogsOverlay.hscript.variables.set("usingLJarcade", true);
@@ -162,7 +158,7 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
 
 	if (FlxG.sound.music == null || !FlxG.sound.music.playing)
         FlxG.sound.playMusic(existsInMods("music/freakyMenu.ogg", Paths.music("freakyMenu")));
-
+    
 	bg = new FlxSprite(0, 0, existsInMods("images/menuDesat.png", Paths.image("menuDesat")));
 	bg.setGraphicSize(FlxG.width, FlxG.height);
     bgScale = bg.scale.x;
@@ -172,6 +168,45 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
     
 	ljRanks = new FlxTypedGroup();
 	add(ljRanks);
+    
+	menuStuff = new FlxTypedGroup();
+	add(menuStuff);
+    
+	var modName = new FlxText(0, 0, 0, "Current Mod: " + editingMod, 24);
+	modName.font = Paths.font("fonts/sansFont.ttf");
+	modName.scrollFactor.set();
+	modName.updateHitbox();
+    modName.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
+    modName.setPosition(150, 15);
+    add(modName);
+    
+	invert = new CustomShader(Paths.shader("invertGPT", mod));
+
+    for (i in 0...menuItemsType.length) {
+        var name = menuItemsType[i];
+        var item = new FlxSprite(0,0, Paths.image("ModEditing/"+name));
+        switch(name.toLowerCase()) {
+            case "freeplay": item.setPosition(225, 100);
+            case "mods": item.setPosition(175, 325);
+            case "options": item.setPosition(525, 330);
+            case "credits": item.setPosition(500, 475);
+        }
+        item.updateHitbox();
+        item.ID = i;
+        menuStuff.add(item);
+    }
+    nothingHere = new FlxText(0,0,0, "There is nothing here at the moment", 32);
+    nothingHere.screenCenter();
+    nothingHere.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
+    nothingHere.alpha = 0.0001;
+    add(nothingHere);
+
+    changeSelMenu(0);
+    if (jsonContent != null) {
+        makeFreeplayData();
+        makeSaveData();
+        makeNewChallengeCards(-1, true);
+    }
 
     var rankBG = new FlxSprite(0,0, Paths.image("ModEditing/RankBar"));
     rankBG.scale.set(0.9,0.9);
@@ -228,44 +263,6 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
     barLevelFilled.clipRect = bgRect;
     barLevelFilled.color = 0xFF01FAFA;
     ljRanks.add(barLevelFilled);
-    
-	menuStuff = new FlxTypedGroup();
-	add(menuStuff);
-    
-	var modName = new FlxText(0, 0, 0, "Current Mod: " + editingMod, 24);
-	modName.font = Paths.font("fonts/sansFont.ttf");
-	modName.scrollFactor.set();
-	modName.updateHitbox();
-    modName.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
-    modName.setPosition(150, 15);
-    add(modName);
-    
-	invert = new CustomShader(Paths.shader("invertGPT", mod));
-
-    for (i in 0...menuItemsType.length) {
-        var name = menuItemsType[i];
-        var item = new FlxSprite(0,0, Paths.image("ModEditing/"+name));
-        switch(name.toLowerCase()) {
-            case "freeplay": item.setPosition(225, 100);
-            case "mods": item.setPosition(175, 325);
-            case "options": item.setPosition(525, 330);
-            case "credits": item.setPosition(500, 475);
-        }
-        item.updateHitbox();
-        item.ID = i;
-        menuStuff.add(item);
-    }
-    nothingHere = new FlxText(0,0,0, "There is nothing here at the moment", 32);
-    nothingHere.screenCenter();
-    nothingHere.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
-    nothingHere.alpha = 0.0001;
-    add(nothingHere);
-
-    changeSelMenu(0);
-    if (jsonContent != null) {
-        makeFreeplayData();
-        makeNewChallengeCards(-1, true);
-    }
 
     if (modChallengeJust.hasCompleted) {
         if (save.data.challengesData.get(editingMod).data[modChallengeJust.dataID.itemID].vars.daData.get("hasCompletedChallenge"))
@@ -759,6 +756,7 @@ var challengesData:Map = [
 ];
 
 function challengesEnter(type:String) {
+    trace(challengesBGstuff);
     for (item in challengesBGstuff) {
         FlxTween.tween(item, {y: (item.height + 5)*(item.ID+1) - 75}, 1, {startDelay: (0.5*item.ID) * 0.3, ease: FlxEase.quadOut});
     }
@@ -778,6 +776,7 @@ function makeNewChallengeCards(?id:Int, ?init:Bool) {
     if (init == null) init = false;
     if (id == null) id = -1;
     var challengeCoolData = save.data.challengesData.get(editingMod).data;
+    trace(challengeCoolData);
     if (init) {
         for (i in 0...challengeCoolData.length) {
             var slot = new FlxUI9SliceSprite(0,0, (existsInMods("ljArcade/images/SquareShit.png", Paths.image("SquareShit"))),
