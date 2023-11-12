@@ -1,3 +1,12 @@
-[ 2.1.5 Alpha ]
-- Added RPC to PlayState
-- Updated Pixel Variant of ArcadeGaming RPC
+[ 2.1.6 Alpha ]
+Updated MainMenuState UI
+    - On hovering a mod, the BG will change depending on the mod's `menuDesat`
+New Mouse Icon
+ModEditing UI Updates soon
+
+[ Next Update Goals ]
+UI Changes
+Shop
+XP System
+Soft Reset LJ Tokens
+More Customizability for Mods to mess around with
