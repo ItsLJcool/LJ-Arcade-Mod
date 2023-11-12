@@ -1,12 +1,13 @@
-[ 2.1.6 Alpha ]
+[ 2.1.7 Alpha ]
 Updated MainMenuState UI
     - On hovering a mod, the BG will change depending on the mod's `menuDesat`
 New Mouse Icon
-ModEditing UI Updates soon
+ModEditing UI Update
+XP System (15 Max Levels)
+Challenges now are the only reward for LJ Tokens
 
 [ Next Update Goals ]
-UI Changes
 Shop
-XP System
-Soft Reset LJ Tokens
 More Customizability for Mods to mess around with
+XP Milestones
+More ways to get LJ Tokens
