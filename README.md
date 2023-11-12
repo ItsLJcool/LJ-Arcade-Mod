@@ -3,7 +3,10 @@
 This YCE Mod is different from the rest, it uses other YCE mods to give you more things to do!
 
 Complete challenges, play any song, and more to come!
-[Add image of MainMenuState] [Add image of a Base game Freeplay] [Add image of the Challenges]
+![image](https://github.com/ItsLJcool/LJ-Arcade-Mod/assets/54383469/107d10e9-68c1-4387-84a8-6c1cb10fe8bf)
+![image](https://github.com/ItsLJcool/LJ-Arcade-Mod/assets/54383469/807331b5-ca38-4ac4-bbee-870366f25f24)
+![image](https://github.com/ItsLJcool/LJ-Arcade-Mod/assets/54383469/cf69c0f6-c32d-43d7-8212-52bffac91a3f)
+
 
 ### Any YCE Mod that has songs is accessable in the Arcade Mod.
 LJ's Arcade Mod has a Simple "API" that other mods can access and set their own data.
