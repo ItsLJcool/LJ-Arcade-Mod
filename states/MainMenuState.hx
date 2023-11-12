@@ -53,11 +53,6 @@ function create() {
         FlxG.camera.alpha = 0;
         FlxG.switchState(new ModState("OutdatedLJArcade", mod, []));
     }
-    
-    if (save.data.ljTokens == null) {
-        save.data.ljTokens = 0;
-        save.flush();
-    }
 
     CoolUtil.playMenuMusic(true);
     var toRemove:Array<Dynamic> = [];

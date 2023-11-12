@@ -25,6 +25,7 @@ var cheated:Bool = false;
 var cardData:Dynamic;
 function create(ps:Dynamic) {
     if (ps.tokenMult == null) ps.tokenMult = 1;
+	if (ps.tokenMult > 2.5) ps.tokenMult = 2.5;
 	playState = ps;
 	editingMod = playState.mod;
 	if (FlxG.sound.music != null) FlxG.sound.music.stop();
@@ -101,9 +102,14 @@ var ratingInfo:Array<Dynamic> = [];
 
 var challengeText = "";
 function makeUI() {
+	trace(playState.theChallengeWasCompleted);
+	if (playState.theChallengeWasCompleted.hasCompleted) {
 	challengeText = (playState.doingChallenge) ?
 	ModSupport.modSaves[mod].data.challengesData.get(editingMod).data[playState.theChallengeWasCompleted.dataID.itemID].vars.daText :
 	"( Freeplay ) | Completed " + StringTools.replace(playState.song, "-", " ");
+	} else {
+		challengeText = "Failed Challenge | Song: " + StringTools.replace(playState.song, "-", " ");
+	}
 	omogu = new CustomShader(Paths.shader("amongSus", mod));
 	setOmogusShador(omogu, {
 		fill: 0xFF000000,
@@ -245,7 +251,7 @@ var lerpToken:Bool = false;
 function ljTokensAdd() {
 	ljTokenTween = FlxTween.tween(this, {}, 0);
 	
-	var textInt = Std.parseInt(save.data.ljTokens);
+	var textInt = Std.parseInt(save.data.levelSystem.tokenData.tokens);
 	ljTokensText = new AlphabetOptimized(0, 0, textInt, true, 0.5);
 	ljTokensText.screenCenter();
 	add(ljTokensText);
@@ -258,17 +264,12 @@ function ljTokensAdd() {
     ljTokenImage.antialiasing = true;
     add(ljTokenImage);
 
-	// return; // here because temp
-
-    var songCalc = (playState.songScore/700) * 0.2;
-    var lengthCalc = (playState.songLength/playState.numberOfArrowNotes) * 0.35;
-    var additionalAddons = (playState.theChallengeWasCompleted.hasCompleted) ? 150 : 0;
-    var math = Math.floor( (songCalc + lengthCalc) + additionalAddons);
+	var math = (playState.theChallengeWasCompleted.hasCompleted) ? 50 : 0;
     math *= playState.tokenMult; math = Math.floor(math);
 
     // me when i accidentally divide by 0 and get -2,147,483,648 tokens so i add this here
     if (math > 0 && !cheated) {
-        save.data.ljTokens += math;
+        save.data.levelSystem.tokenData.tokens += math;
         save.flush();
     }
     ljTokenTween = FlxTween.num(textInt, textInt + math, 1, {startDelay: 1, ease: FlxEase.cubeInOut}, function(v:Float) {
@@ -320,12 +321,14 @@ function startRating(time:Float) {
 
 var endingRating:Bool = false;
 var stopRating:Bool = false;
+var addedExtra = {type: -1};
 function updateRating(?addExtra:Bool = false, ?type:Int) {
 	ratingSpr.alpha = 1;
 	if (addExtra == null) addExtra = false;
 	if (addExtra) {
 		var uh = colorToShaderVec(ratingColors.get(ratingOrder[ratingInt]), true);
 		(ratingAtlas) ? ratingAdd.animation.play((type == 0) ? "minus" : "plus", true) : ratingAdd.loadGraphic(Paths.image("ratingState/ratings/" + ((type == 0) ? "minus" : "plus")));
+		addedExtra.type = type;
 		ratingAdd.alpha = 1;
 		ratingAdd.shader.setColors(uh.r, uh.g, uh.b);
 		new FlxTimer().start(1, ratingsEnd);
@@ -341,6 +344,7 @@ function updateRating(?addExtra:Bool = false, ?type:Int) {
 	ratingSpr.scale.set(ratingScale+0.075, ratingScale+0.075);
 	FlxTween.tween(ding, {pitch: ding.pitch + 0.025}, 0.001);
 	ding.play(true);
+	trace(ratingInt);
 }
 
 function ratingsEnd(?loser:Bool) {
@@ -359,6 +363,38 @@ function ratingsEnd(?loser:Bool) {
 	new FlxTimer().start(1 + (0.5*barsThing.length) * 0.25, function() {
 		endingRating = true;
 	});
+	if (!cheated) {
+		var addTo:Int = 0;
+		switch(ratingInt) {
+			case 6: addTo = 150;
+			case 5: addTo = 125;
+			case 4: addTo = 100;
+			case 3: addTo = 76;
+			case 2: addTo = 50;
+			case 1: addTo = 25;
+			case 0: addTo = 15;
+		}
+		switch(addedExtra.type) {
+			case 1: addTo += 50;
+			case 0: addTo += 25;
+			default: addTo += 0;
+		}
+		save.data.levelSystem.xpData.xp += addTo;
+		save.flush();
+	}
+    /**
+        use this when re-doing UI and adding XP / Levels
+
+        +: 50xp,
+        -: 25xp,
+        
+        S Rank: 150xp,
+        A Rank: 100xp,
+        B Rank: 75xp,
+        C Rank: 50xp,
+        E Rank: 25xp,
+        F Rank: 15xp
+    **/
 }
 
 var ratingInt:Int = -1;

@@ -129,7 +129,7 @@ function doRPCupdate() {
                             rpc.state = "LJ Arcade - Playing " + FlxG.state.script.getVariable("editingMod");
                             if (FlxG.state.script.getVariable("curSelectedType").toLowerCase() != "menu") {
                                 rpc.smallImageKey = "lj_token_mini";
-                                rpc.smallImageText = "LJ Tokens: " + save.data.ljTokens;
+                                rpc.smallImageText = "LJ Tokens: " + save.data.levelSystem.tokenData.tokens;
                             }
                             switch(FlxG.state.script.getVariable("curSelectedType").toLowerCase()) {
                                 case "freeplay":
@@ -137,7 +137,7 @@ function doRPCupdate() {
                                 case "medals":
                                     rpc.details = "Picking A Challenge";
                                 default:
-                                    rpc.details = "LJ Tokens: " + save.data.ljTokens;
+                                    rpc.details = "LJ Tokens: " + save.data.levelSystem.tokenData.tokens;
                             }
                         case "ratingssay":
                             rpc.state = "LJ Arcade - Ratings"; // top text
