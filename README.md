@@ -13,8 +13,7 @@ Your able to make custom challenges, challenges for specific songs, and more to 
 ## LJ Tokens
 You can gain LJ Tokens by:
   1. Completing Challenges
-  2. Playing Any Song
-And more ways are to come!
+  2. (soon) XP Milestones
 
 ## Mod Info
 This mod was an Idea for a while, but I guess my brain was too small to understand Haxe, now that I have a grip on Haxe.
