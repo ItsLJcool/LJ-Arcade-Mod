@@ -1,16 +1,13 @@
-[ 2.1.7 Alpha ]
-Updated MainMenuState UI
-    - On hovering a mod, the BG will change depending on the mod's `menuDesat`
-New Mouse Icon
-ModEditing UI Update
-XP System (15 Max Levels)
-Challenges now are the only reward for LJ Tokens
-
-HOTFIX UPDATE:
-Challenges are fixed (Hopefully) report bugs if you find any please.
+[ 2.2.0 Alpha ]
+• Mods => Shop (Better name clerify)
+• Credits => Challenges (Reusing Credits Later)
+• Font is now the Fnf Font
+• Rank Text offset fixed
+• Added a better color scheme to the Rank Level
+• Fixed an issue where game can crash if the Mod doesn't have any songs (or a proper freeplaySonglist.json)
 
 [ Next Update Goals ]
-Shop
-More Customizability for Mods to mess around with
-XP Milestones
-More ways to get LJ Tokens
+• Shop
+• More Customizability for Mods to mess around with
+• XP Milestones
+• More ways to get LJ Tokens

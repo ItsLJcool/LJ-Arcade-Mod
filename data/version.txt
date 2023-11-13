@@ -1,2 +1,2 @@
-2.1.7-alpha-hotfix
+2.2.0-alpha
 LJ-s-Arcade-Mod.ycemod

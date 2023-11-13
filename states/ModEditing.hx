@@ -95,6 +95,8 @@ function new(modYay:String, ?_modChallengeJust:Dyanimc) {
 		if (jsonContent.songs != null)
 			for (song in jsonContent.songs) freeplaySongs.push(SongMetadata.fromFreeplaySong(song, modYay));
 	}
+    trace(jsonContent);
+    if (jsonContent != null && jsonContent.songs == []) jsonContent = null;
     FlxG.mouse.visible = true;
     var theMod = editingMod;
     if (!Assets.exists(Paths.getLibraryPathForce("ljArcade/editData/ChallengesData.hx", "mods/" + theMod))) {
@@ -133,7 +135,7 @@ var tokenBG:FlxUI9SliceSprite;
 var bgRect:FlxRect;
 
 var menuItemsType = [
-    "freeplay", "mods", "options", "credits",
+    "freeplay", "shop", "challenges", "options",
 ];
 
 var ljTokenTweens:Array<FlxTweens> = [];
@@ -173,25 +175,25 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
 	add(menuStuff);
     
 	var modName = new FlxText(0, 0, 0, "Current Mod: " + editingMod, 24);
-	modName.font = Paths.font("fonts/sansFont.ttf");
+	modName.font = Paths.font("Funkin - No Outline.ttf");
 	modName.scrollFactor.set();
 	modName.updateHitbox();
     modName.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
     modName.setPosition(150, 15);
     add(modName);
-    
-	invert = new CustomShader(Paths.shader("invertGPT", mod));
 
     for (i in 0...menuItemsType.length) {
         var name = menuItemsType[i];
         var item = new FlxSprite(0,0, Paths.image("ModEditing/"+name));
         switch(name.toLowerCase()) {
             case "freeplay": item.setPosition(225, 100);
-            case "mods": item.setPosition(175, 325);
-            case "options": item.setPosition(525, 330);
-            case "credits": item.setPosition(500, 475);
+            case "shop": item.setPosition(175, 325);
+            case "options": item.setPosition(575, 500);
+            case "challenges":
+                item.scale.set(0.85, 0.85);
+                item.updateHitbox();
+                item.setPosition(500, 330);
         }
-        item.updateHitbox();
         item.ID = i;
         menuStuff.add(item);
     }
@@ -207,6 +209,37 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
         makeSaveData();
         makeNewChallengeCards(-1, true);
     }
+    
+	colorOmogo = new CustomShader(Paths.shader("amongSus", mod));
+	setOmogusShador(colorOmogo, {
+		fill: 0xFFBBFF00,
+		outline: 0xFF00FF00,
+		gradientData: {
+			gradient: true,
+			coloredGradient: true,
+
+			fillCap: {min: 0, max: 3},
+			outlineCap: {min: 0, max: 3},
+
+			fillGrad: 0xFFBBFF00,
+			outlineGrad: 0xFF043104,
+		}
+	});
+    otherOmogo = new CustomShader(Paths.shader("amongSus", mod));
+	setOmogusShador(otherOmogo, {
+		fill: 0xFF004a00,
+		outline: 0xFF004a00,
+		gradientData: {
+			gradient: true,
+			coloredGradient: true,
+
+			fillCap: {min: 0, max: 2},
+			outlineCap: {min: 0, max: 2},
+
+			fillGrad: 0xFF004a19,
+			outlineGrad: 0xFF004a19,
+		}
+	});
 
     var rankBG = new FlxSprite(0,0, Paths.image("ModEditing/RankBar"));
     rankBG.scale.set(0.9,0.9);
@@ -223,35 +256,36 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
     ljTokenImage.antialiasing = true;
     ljRanks.add(ljTokenImage);
 
-	var ljTokens = new FlxText(0, 0, 0, condenseInt(save.data.levelSystem.tokenData.tokens), 32);
-	ljTokens.font = Paths.font("fonts/sansFont.ttf");
+	var ljTokens = new FlxText(0, 0, 0, condenseInt(save.data.levelSystem.tokenData.tokens).toLowerCase(), 32);
+	ljTokens.font = Paths.font("Funkin - No Outline.ttf");
 	ljTokens.scrollFactor.set();
     ljTokens.alignment = "right";
     // ljTokens.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1);
 	ljTokens.updateHitbox();
-    ljTokens.setPosition(ljTokenImage.x - ljTokenImage.width - ljTokens.width/2, ljTokenImage.y + ljTokenImage.height/2 - ljTokens.height/2);
+    ljTokens.setPosition(ljTokenImage.x - ljTokenImage.width - ljTokens.width/2 + 8, ljTokenImage.y + ljTokenImage.height/2 - ljTokens.height/2);
     ljRanks.add(ljTokens);
     
-    var ranky = "Rank: ";
+    var ranky = "RANK: ";
     if (save.data.levelSystem.xpData.level < save.data.levelSystem.xpData.capLevel) ranky += Std.string(save.data.levelSystem.xpData.level);
     else if (save.data.levelSystem.xpData.level >= save.data.levelSystem.xpData.capLevel) ranky += Std.string(save.data.levelSystem.xpData.level) + " (Max)";
-	var rankThing = new FlxText(0, 0, 0, ranky, 32);
-	rankThing.font = Paths.font("fonts/sansFont.ttf");
+	var rankThing = new FlxText(0, 0, 0, ranky, 28);
+	rankThing.font = Paths.font("Funkin - No Outline.ttf");
 	rankThing.scrollFactor.set();
-    rankThing.alignment = "left";
+    rankThing.alignment = "right";
     // rankThing.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1);
 	rankThing.updateHitbox();
-    rankThing.setPosition(rankBG.x + rankThing.width - 45, 0);
+    rankThing.setPosition(rankBG.x + 60, 0);
     ljRanks.add(rankThing);
 
     var percent = save.data.levelSystem.xpData.xp/save.data.levelSystem.xpData.xpToLevelUp;
-    
+
     var barLevelWhite = new FlxUI9SliceSprite(0,0, Paths.image("ModEditing/barLevel"), new Rectangle(0,0, 500, 35), [72, 0, 77, 35]);
     barLevelWhite.scale.set(0.5,0.5);
     barLevelWhite.updateHitbox();
     barLevelWhite.setPosition(rankBG.x + 65, rankBG.y + rankBG.height/2 - barLevelWhite.height/2 + 10);
     barLevelWhite.antialiasing = true;
     barLevelWhite.flipX = true;
+    barLevelWhite.shader = otherOmogo;
     ljRanks.add(barLevelWhite);
     
     var barLevelFilled = new FlxUI9SliceSprite(0,0, Paths.image("ModEditing/barLevel"), new Rectangle(0,0, 500, 35), [72, 0, 77, 35]);
@@ -261,7 +295,7 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
     barLevelFilled.antialiasing = true;
 	bgRect = new FlxRect(0, 0, barLevelFilled.frameWidth*(percent + 0.001), barLevelFilled.frameHeight);
     barLevelFilled.clipRect = bgRect;
-    barLevelFilled.color = 0xFF01FAFA;
+    barLevelFilled.shader = colorOmogo;
     ljRanks.add(barLevelFilled);
 
     if (modChallengeJust.hasCompleted) {
@@ -273,8 +307,11 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
 
 function condenseInt(inted:Int) {
     inted = Std.parseInt(inted);
-    if (inted < 999) return inted;
+    if (inted < 999) return Std.string(inted);
     else {
+        if (Math.floor(roundToDecimals(inted/1000000000, 2)) >= 1) {
+            return roundToDecimals(inted/1000000000, 2) + "B"; // how?
+        }
         if (Math.floor(roundToDecimals(inted/1000000, 2)) >= 1) {
             return roundToDecimals(inted/1000000, 2) + "M";
         }
@@ -318,7 +355,7 @@ function hasCompletedChallenge() {
         remove(check, true);
         theChallengeBG.x = 0 - theChallengeBG.width - 20;
         FlxTween.tween(theChallengeBG, {x: FlxG.width/2 - theChallengeBG.width/2}, 1, {ease:FlxEase.quadOut, onComplete: function() {
-            curSelectedType = "mods";
+            curSelectedType = "challenges";
             canSelectChallenge = true;
             dontChangeItem = -1;
         }});
@@ -334,31 +371,58 @@ function changeSelMenu(hur:Int = 0) {
     curSel = CoolUtil.wrapInt(curSel + hur, 0, menuItemsType.length);
     menuStuff.forEach(function(item) {
         // item.animation.play(((item.ID == curSel) ? "selected" : "normal"), true);
-        switch(item.ID) {
-            case 0,1:
-                if (jsonContent == null) {
-                    item.colorTransform.redMultiplier = -1;
-                    item.colorTransform.greenMultiplier = -1;
-                    item.colorTransform.blueMultiplier = -1;
-                }
-        }
         if (item.ID == curSel) {
-            item.colorTransform.redMultiplier = 0.25;
-            item.colorTransform.greenMultiplier = 1;
-            item.colorTransform.blueMultiplier = 0.25;
+            switch(item.ID) {
+                case 0,2:
+                    if (jsonContent == null) {
+                        item.colorTransform.redMultiplier = 0.25;
+                        item.colorTransform.greenMultiplier = 0.5;
+                        item.colorTransform.blueMultiplier = 0.25;
+                    } else {
+                        item.colorTransform.redMultiplier = 0.25;
+                        item.colorTransform.greenMultiplier = 1;
+                        item.colorTransform.blueMultiplier = 0.25;
+                    }
+                default:
+                    item.colorTransform.redMultiplier = 0.25;
+                    item.colorTransform.greenMultiplier = 1;
+                    item.colorTransform.blueMultiplier = 0.25;
+            }
             // item.shader = invert;
         }
         else {
-            item.colorTransform.redMultiplier = 1;
-            item.colorTransform.greenMultiplier = 1;
-            item.colorTransform.blueMultiplier = 1;
+            switch(item.ID) {
+                case 0,2:
+                    if (jsonContent == null) {
+                        item.colorTransform.redMultiplier = 0;
+                        item.colorTransform.greenMultiplier = 0;
+                        item.colorTransform.blueMultiplier = 0;
+                    } else {
+                        item.colorTransform.redMultiplier = 1;
+                        item.colorTransform.greenMultiplier = 1;
+                        item.colorTransform.blueMultiplier = 1;
+                    }
+                default:
+                    item.colorTransform.redMultiplier = 1;
+                    item.colorTransform.greenMultiplier = 1;
+                    item.colorTransform.blueMultiplier = 1;
+            }
             // item.shader = null;
         }
     });
 }
 function menuSel() {
     curSelectedType = "";
-    FlxG.sound.play(existsInMods("sounds/confirmMenu.ogg", Paths.sound("confirmMenu")));
+    if (jsonContent == null) {
+        switch(menuItemsType[curSel].toLowerCase()) {
+            case "freeplay", "challenges":
+                FlxG.sound.play(existsInMods("sounds/disabledMenu.ogg", Paths.sound("disabledMenu")));
+                new FlxTimer().start(0.25, function() {
+                    curSelectedType = "menu";
+                });
+                return;
+        }
+    }
 
     menuStuff.forEach(function(item) {
         if (item.ID == curSel) {
@@ -369,8 +433,8 @@ function menuSel() {
                 if (tmr.loopsLeft == 0) {
                     new FlxTimer().start(0.5, function() {
                         switch(menuItemsType[item.ID].toLowerCase()) {
-                            case "freeplay": freeplayInit(menuItemsType[item.ID].toLowerCase());
-                            case "mods": challengesEnter(menuItemsType[item.ID].toLowerCase());
+                            case "freeplay": if (jsonContent != null) freeplayInit(menuItemsType[item.ID].toLowerCase());
+                            case "challenges": if (jsonContent != null) challengesEnter(menuItemsType[item.ID].toLowerCase());
                             default: 
                                 curSelectedType = menuItemsType[item.ID].toLowerCase();
                                 FlxTween.tween(nothingHere, {alpha: 1}, 0.75, {ease: FlxEase.quadInOut});
@@ -386,6 +450,7 @@ function menuSel() {
             case 3: FlxTween.tween(item, {y: FlxG.height + item.height + 10}, 0.5, {startDelay: 0.75, ease: FlxEase.quadIn});
         }
     });
+    FlxG.sound.play(existsInMods("sounds/confirmMenu.ogg", Paths.sound("confirmMenu")));
 }
 
 var grpSongs:FlxTypedGroup<AlphabetOptimized>;
@@ -543,18 +608,22 @@ function update(elapsed:Float) {
         switch(curSelectedType.toLowerCase()) {
             case "freeplay": freeplayDiff(-1);
             case "challenge_diff": challengeDiff(-1);
+            case "menu":
+                FlxG.sound.play(existsInMods("sounds/scrollMenu.ogg", Paths.sound("scrollMenu")));
+                changeSelMenu(-1);
         }
     }
     if (FlxControls.anyJustPressed([39, 68])) {
         switch(curSelectedType.toLowerCase()) {
             case "freeplay": freeplayDiff(1);
             case "challenge_diff": challengeDiff(1);
+            case "menu":
+                FlxG.sound.play(existsInMods("sounds/scrollMenu.ogg", Paths.sound("scrollMenu")));
+                changeSelMenu(1);
         }
     }
-    
     if (FlxControls.anyJustPressed([38, 87])) {
         switch(curSelectedType.toLowerCase()) {
-            case "menu": changeSelMenu(-1);
             case "freeplay": freeplaySel(-1);
             default: return;
         }
@@ -562,7 +631,6 @@ function update(elapsed:Float) {
     }
     if (FlxControls.anyJustPressed([40, 83])) {
         switch(curSelectedType.toLowerCase()) {
-            case "menu": changeSelMenu(1);
             case "freeplay": freeplaySel(1);
             default: return;
         }
@@ -592,7 +660,7 @@ function update(elapsed:Float) {
                 FlxTween.tween(scoreText, {x: FlxG.width + scoreText.width + 5}, 0.75, {ease:FlxEase.quadInOut});
                 FlxTween.tween(scoreBG, {x: FlxG.width + scoreText.width + 5}, 0.75, {ease:FlxEase.quadInOut});
                 FlxTween.tween(diffText, {x: FlxG.width + scoreText.width + 5}, 0.75, {ease:FlxEase.quadInOut});
-            case "mods":
+            case "challenges":
                 canSelectChallenge = false;
                 time = 1.26 + (0.5/(challengesBGstuff.length)) * 0.3;
                 for (item in challengesBGstuff) {
@@ -600,7 +668,7 @@ function update(elapsed:Float) {
                 }
             case "challenge_diff":
                 goBackToMenu = false;
-                curSelectedType = "mods";
+                curSelectedType = "challenges";
                 diffStuff.forEach(function(item) {
                     item.visible = false;
                 });
@@ -617,8 +685,8 @@ function update(elapsed:Float) {
                 switch(item.ID) {
                     case 0: pos.x = 225; pos.y = 100;
                     case 1: pos.x = 175; pos.y = 325;
-                    case 2: pos.x = 525; pos.y = 330;
-                    case 3: pos.x = 500; pos.y = 475;
+                    case 2: pos.x = 500; pos.y = 330;
+                    case 3: pos.x = 575; pos.y = 500;
                 }
                 item.updateHitbox();
                 item.alpha = 1;
@@ -700,6 +768,7 @@ var timesInFuture:Array<Dynamic> = [
 var dontChangeItem:Int = -1;
 var coolTime:Int = 2;
 function checkTimeOnChallenges() {
+    if (jsonContent == null) return;
     var getChallTime = save.data.challengesData.get(editingMod).data;
     var ugh:Int = 0;
     for (item in getChallTime) ugh++;
@@ -756,7 +825,6 @@ var challengesData:Map = [
 ];
 
 function challengesEnter(type:String) {
-    trace(challengesBGstuff);
     for (item in challengesBGstuff) {
         FlxTween.tween(item, {y: (item.height + 5)*(item.ID+1) - 75}, 1, {startDelay: (0.5*item.ID) * 0.3, ease: FlxEase.quadOut});
     }
@@ -776,7 +844,6 @@ function makeNewChallengeCards(?id:Int, ?init:Bool) {
     if (init == null) init = false;
     if (id == null) id = -1;
     var challengeCoolData = save.data.challengesData.get(editingMod).data;
-    trace(challengeCoolData);
     if (init) {
         for (i in 0...challengeCoolData.length) {
             var slot = new FlxUI9SliceSprite(0,0, (existsInMods("ljArcade/images/SquareShit.png", Paths.image("SquareShit"))),
@@ -1169,4 +1236,71 @@ function existsInMods(targeted:String, default:String, ?sparrow:Bool = false) {
     }
 	targeted = Paths.getLibraryPathForce(targeted, "mods/" + editingMod);
 	return (Assets.exists(targeted)) ? targeted : default;
+}
+
+/**
+	basically convert the int into R G B from 0 - 1 values
+	bitshift, divide by 100 and return an array
+
+	Yce is dumb and makes Blue = Green, and Green = Blue, instead of RGB, its RBG?? sure yoshi.
+	Need some help getting to the insane asylum? I can help.
+**/
+function colorToShaderVec(color:Int, ?rgbUh:Bool = false) {
+    if (color == null) return;
+	if (rgbUh == null) rgbUh = false;
+	var r = (color >> 16) & 0xff;
+	var g = (color >> 8) & 0xff;
+	var b = (color & 0xff);
+	return (rgbUh) ? {r: r, g: g, b: b, a: (color >> 24) & 0xff} : [(r)/100, (g)/100, (b)/100];
+}
+/*
+	Hex - (FF, A1)S
+	AA - Alpha Channel in Hex
+	RR - Red Channel in Hex
+	GG - Green Channel in Hex
+	BB - Blue Channel in Hex
+	0x - beginning of Hex data.
+*/
+/**
+	@param shader The CustomShader variable
+	@param colors 
+	{ 
+		fill: 0xAARRGGBB,
+		outline: 0xAARRGGBB,
+		gradientData: {
+			gradient: Bool,
+			coloredGradient: Bool,
+
+			fillCap: {
+				min: Float, max: Float
+			},
+			outlineCap: {
+				misn: Float, max: Float
+			},
+
+			fillGrad: 0xAARRGGBB,
+			outlineGrad: 0xAARRGGBB
+		},
+	}
+**/
+function setOmogusShador(shader:CustomShader, colors:Dynamic) {
+	if (shader == null) return;
+
+	shader.data.fillColor.value = colorToShaderVec(colors.fill);
+	shader.data.outlineColor.value = colorToShaderVec(colors.outline);
+	shader.data.enableGradient.value = [0, 0];
+    
+	
+	if (colors.gradientData != null && colors.gradientData.gradient) {
+		if (colors.gradientData.fillCap != null) shader.data.fillGradientCap.value = [colors.gradientData.fillCap.min, colors.gradientData.fillCap.max];
+		if (colors.gradientData.outlineCap != null) shader.data.outlineGradientCap.value = [colors.gradientData.outlineCap.min, colors.gradientData.outlineCap.max];
+
+		shader.data.enableGradient.value[0] = 1;
+		if (colors.gradientData.coloredGradient) {
+			shader.data.fillGradientColor.value = colorToShaderVec(colors.gradientData.fillGrad);
+			shader.data.outlineGradientColor.value = colorToShaderVec(colors.gradientData.outlineGrad);
+			
+			shader.data.enableGradient.value[1] = 1;
+		}
+	}
 }
