@@ -57,7 +57,7 @@ function create() {
     CoolUtil.playMenuMusic(true);
     var toRemove:Array<Dynamic> = [];
     for (item in installedMods) {
-        if (Path.extension(item) != ""
+        if (!FileSystem.isDirectory("mods/"+item)
         || StringTools.contains(item.toLowerCase(), "yoshicrafterengine")
         || StringTools.contains(item.toLowerCase(), "crumbcat") // bro really?
         || StringTools.contains(item.toLowerCase(), mod.toLowerCase()))

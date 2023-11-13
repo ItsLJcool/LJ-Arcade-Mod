@@ -15,6 +15,7 @@ import ModSupport;
 import Script;
 import DummyScript;
 import StringTools;
+import ScoreText;
 
 var ljTokenImage:FlxSprite;
 var editingMod:String;
@@ -23,6 +24,7 @@ var playState:Dynamic;
 var cheated:Bool = false;
 
 var cardData:Dynamic;
+var properRating = "F";
 function create(ps:Dynamic) {
     if (ps.tokenMult == null) ps.tokenMult = 1;
 	if (ps.tokenMult > 2.5) ps.tokenMult = 2.5;
@@ -30,8 +32,8 @@ function create(ps:Dynamic) {
 	editingMod = playState.mod;
 	if (FlxG.sound.music != null) FlxG.sound.music.stop();
 	cheated = (playState.rating[0].toLowerCase() == "botplay" || playState.rating[0].toLowerCase() == 'n/a' || !playState.canDie || !playState.validScore || playState.rating[1] == "-");
-
     var theMod = editingMod;
+	properRating = ScoreText.getRating(Std.parseFloat(playState.acc[1].split(":")[1].split("%")[0]));
     if (!Assets.exists(Paths.getLibraryPathForce("ljArcade/editData/RatingsDisplay.hx", "mods/" + theMod))) theMod = mod;
 
     RatingsScript = Script.create(Paths.modsPath + "/" + mod + "/ljArcade/editData/RatingsDisplay.hx");
@@ -289,7 +291,7 @@ function startRating(time:Float) {
 		updateRating();
 		die -= 0.12;
 		if (die <= 0) die = 0.25;
-		if (StringTools.contains(playState.rating[1], ratingOrder[ratingInt])
+		if (StringTools.contains(properRating, ratingOrder[ratingInt])
 			|| (cheated && ratingInt >= ratingOrder.length-1)
 			|| (playState.rating[1].toLowerCase() ==  "perfect" && ratingInt >= ratingOrder.length-1)) {
 			if (cheated) die = 1;

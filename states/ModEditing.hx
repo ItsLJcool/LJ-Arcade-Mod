@@ -95,7 +95,6 @@ function new(modYay:String, ?_modChallengeJust:Dyanimc) {
 		if (jsonContent.songs != null)
 			for (song in jsonContent.songs) freeplaySongs.push(SongMetadata.fromFreeplaySong(song, modYay));
 	}
-    trace(jsonContent);
     if (jsonContent != null && jsonContent.songs == []) jsonContent = null;
     FlxG.mouse.visible = true;
     var theMod = editingMod;
