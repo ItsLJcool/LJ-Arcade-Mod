@@ -31,7 +31,8 @@ function create(ps:Dynamic) {
 	playState = ps;
 	editingMod = playState.mod;
 	if (FlxG.sound.music != null) FlxG.sound.music.stop();
-	properRating = getScoreReal(playState.acc[1].split(":")[1].split("%")[0]);
+	var thing = (StringTools.contains(playState.acc[1], ":")) ? playState.acc[1].split(":")[1].split("%")[0] : playState.acc[1].split("%")[0];
+	properRating = getScoreReal(thing);
 	cheated = (properRating == "-" || playState.rating[0].toLowerCase() == "botplay" || playState.rating[0].toLowerCase() == 'n/a' || !playState.canDie || !playState.validScore || playState.rating[1] == "-");
     var theMod = editingMod;
     if (!Assets.exists(Paths.getLibraryPathForce("ljArcade/editData/RatingsDisplay.hx", "mods/" + theMod))) theMod = mod;
