@@ -19,15 +19,15 @@ var theChallengeWasCompleted:Array<Dynamic> = { hasCompleted: false };
 var tokenMultiplier:Int = 1;
 var challengeScript = null;
 
-// function onOpenSubstate(SubState) {
-//     if (Std.isOfType(SubState, PauseSubState)) {
-//         if (SubState.menuItems[2].toLowerCase() == "developer options") {
-//             SubState.menuItems.remove(SubState.menuItems[2]);
-//             SubState.grpMenuShit.remove(SubState.grpMenuShit.members[2], true);
-//             SubState.changeSelection();
-//         }
-//     }
-// }
+function onOpenSubstate(SubState) {
+    if (Std.isOfType(SubState, PauseSubState)) {
+        if (SubState.menuItems[2].toLowerCase() == "developer options") {
+            SubState.menuItems.remove(SubState.menuItems[2]);
+            SubState.grpMenuShit.remove(SubState.grpMenuShit.members[2], true);
+            SubState.changeSelection();
+        }
+    }
+}
 
 function create() {
     FlxG.signals.postUpdate.removeAll();
@@ -48,7 +48,7 @@ function create() {
                         numberOfArrowNotes: PlayState.numberOfArrowNotes,
                         numberOfNotes: PlayState.numberOfNotes,
                         theChallengeWasCompleted: theChallengeWasCompleted,
-                        tokenMult: tokenMultiplier,
+                        tokenMult: (challengeScript != null) ? challengeScript.getVariable("tokenMultiplier") : 1,
                         challData: challengeID,
                         doingChallenge: doingChallenge,
                         song: PlayState.SONG.song,

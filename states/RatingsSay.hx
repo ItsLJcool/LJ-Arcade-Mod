@@ -26,6 +26,7 @@ var cheated:Bool = false;
 var cardData:Dynamic;
 var properRating = "F";
 function create(ps:Dynamic) {
+	trace(ps.tokenMult);
     if (ps.tokenMult == null) ps.tokenMult = 1;
 	if (ps.tokenMult > 2.5) ps.tokenMult = 2.5;
 	playState = ps;

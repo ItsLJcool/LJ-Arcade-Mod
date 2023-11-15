@@ -1,6 +1,9 @@
-[ 2.2.2 Alpha ]
+[ 2.2.2-hotfix Alpha ]
 • Updated the UpdateArcade screen, text shouldn't go off screen now, thats good. sorry 2.2.1-alpha users.
 • Fixed an issue where the game would give an error(s) if on a specific setting
+
+HOTFIX:
+Token multiplier should be working now
 
 [ Next Update Goals ]
 • Shop

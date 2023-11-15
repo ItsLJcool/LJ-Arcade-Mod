@@ -49,6 +49,7 @@ var modChallengeJust:Array<Dyanimc> = {hasCompleted: false};
     [2.0.1] - I think the save.data is good yipee
     [2.1.0] - Fixed an issue with challenges for some reason not wanting to complete ;-;
     [2.1.1] - oops i suck at coding
+    [2.1.2] - quick reset on saveData.
 
     # Upcomming
     [2.2.0] - Might want to make an "XP" System instead of just tokens.
@@ -82,7 +83,7 @@ var modChallengeJust:Array<Dyanimc> = {hasCompleted: false};
     `level 20` - idk (???)
 
 **/
-var challengesVersion:String = "2.1.1";
+var challengesVersion:String = "2.1.2";
 
 function new(modYay:String, ?_modChallengeJust:Dyanimc) {
     if (_modChallengeJust != null) modChallengeJust = _modChallengeJust;
