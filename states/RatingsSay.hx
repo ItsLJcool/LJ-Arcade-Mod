@@ -31,9 +31,9 @@ function create(ps:Dynamic) {
 	playState = ps;
 	editingMod = playState.mod;
 	if (FlxG.sound.music != null) FlxG.sound.music.stop();
-	cheated = (playState.rating[0].toLowerCase() == "botplay" || playState.rating[0].toLowerCase() == 'n/a' || !playState.canDie || !playState.validScore || playState.rating[1] == "-");
+	properRating = getScoreReal(playState.acc[1].split(":")[1].split("%")[0]);
+	cheated = (properRating == "-" || playState.rating[0].toLowerCase() == "botplay" || playState.rating[0].toLowerCase() == 'n/a' || !playState.canDie || !playState.validScore || playState.rating[1] == "-");
     var theMod = editingMod;
-	properRating = ScoreText.getRating(Std.parseFloat(playState.acc[1].split(":")[1].split("%")[0]));
     if (!Assets.exists(Paths.getLibraryPathForce("ljArcade/editData/RatingsDisplay.hx", "mods/" + theMod))) theMod = mod;
 
     RatingsScript = Script.create(Paths.modsPath + "/" + mod + "/ljArcade/editData/RatingsDisplay.hx");
@@ -76,6 +76,21 @@ function create(ps:Dynamic) {
 	makeUI();
 }
 
+function getScoreReal(acc) {
+	acc = Std.parseFloat(acc) / 100;
+	var rating = "huh";
+	if (acc == 1) rating = "S";
+	else if (acc >= 0.9) rating = "S";
+	else if (acc >= 0.8) rating = "A";
+	else if (acc >= 0.7) rating = "B";
+	else if (acc >= 0.6) rating = "C";
+	else if (acc >= 0.5) rating = "D";
+	else if (acc >= 0.4) rating = "E";
+	else if (acc == 0) rating = "-";
+	else rating = "F";
+
+	return rating;
+}
 
 // ModSupport.modSaves[loadedMod].data.challengesData.get(editingMod).data[challengeID].vars.daData.set("hasCompletedChallenge", true);
 
@@ -104,8 +119,7 @@ var ratingInfo:Array<Dynamic> = [];
 
 var challengeText = "";
 function makeUI() {
-	trace(playState.theChallengeWasCompleted);
-	if (playState.theChallengeWasCompleted.hasCompleted) {
+	if (playState.theChallengeWasCompleted.hasCompleted || !playState.doingChallenge) {
 	challengeText = (playState.doingChallenge) ?
 	ModSupport.modSaves[mod].data.challengesData.get(editingMod).data[playState.theChallengeWasCompleted.dataID.itemID].vars.daText :
 	"( Freeplay ) | Completed " + StringTools.replace(playState.song, "-", " ");
@@ -266,7 +280,7 @@ function ljTokensAdd() {
     ljTokenImage.antialiasing = true;
     add(ljTokenImage);
 
-	var math = (playState.theChallengeWasCompleted.hasCompleted) ? 50 : 0;
+	var math = (playState.theChallengeWasCompleted.hasCompleted) ? 20 : 0;
     math *= playState.tokenMult; math = Math.floor(math);
 
     // me when i accidentally divide by 0 and get -2,147,483,648 tokens so i add this here
@@ -346,7 +360,6 @@ function updateRating(?addExtra:Bool = false, ?type:Int) {
 	ratingSpr.scale.set(ratingScale+0.075, ratingScale+0.075);
 	FlxTween.tween(ding, {pitch: ding.pitch + 0.025}, 0.001);
 	ding.play(true);
-	trace(ratingInt);
 }
 
 function ratingsEnd(?loser:Bool) {

@@ -1,13 +1,17 @@
-[ 2.2.0 Alpha ]
-• Mods => Shop (Better name clerify)
-• Credits => Challenges (Reusing Credits Later)
-• Font is now the Fnf Font
-• Rank Text offset fixed
-• Added a better color scheme to the Rank Level
-• Fixed an issue where game can crash if the Mod doesn't have any songs (or a proper freeplaySonglist.json)
+[ 2.2.1 Alpha ]
+• Finally Fixed the Ratings Issue. Properly displays the rating (based on `generateAccuracy` in `ScoreText`)
+• Reduced token gains from 50 => 20.
+• Might have fixed an issue with titlescreen. Apparently there is no `titlescreen` folder in base YCE.
+• Fixed a bug where it would say you failed a challenge, but played the song in freeplay.
+• Fixed an issue where Mods with `.` in the folder name would be excluded from the list. (Might have been last update, i forgor)
+
+• Added Gamebanana release (for promotion)
 
 [ Next Update Goals ]
 • Shop
 • More Customizability for Mods to mess around with
 • XP Milestones
 • More ways to get LJ Tokens
+• Button to add YCE Mods (?)
+
+PLEASE REPORT ANY ISSUES TO THE GITHUB!
