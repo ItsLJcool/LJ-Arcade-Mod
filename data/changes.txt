@@ -1,5 +1,6 @@
 [ 2.2.2 Alpha ]
-• Updated the UpdateArcade screen, text shouldn't go off screen now, thats good. sorry 2.2.1-alpah users.
+• Updated the UpdateArcade screen, text shouldn't go off screen now, thats good. sorry 2.2.1-alpha users.
+• Fixed an issue where the game would give an error(s) if on a specific setting
 
 [ Next Update Goals ]
 • Shop
