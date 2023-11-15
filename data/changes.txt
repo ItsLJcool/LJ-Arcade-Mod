@@ -1,11 +1,5 @@
-[ 2.2.1 Alpha ]
-• Finally Fixed the Ratings Issue. Properly displays the rating (based on `generateAccuracy` in `ScoreText`)
-• Reduced token gains from 50 => 20.
-• Might have fixed an issue with titlescreen. Apparently there is no `titlescreen` folder in base YCE.
-• Fixed a bug where it would say you failed a challenge, but played the song in freeplay.
-• Fixed an issue where Mods with `.` in the folder name would be excluded from the list. (Might have been last update, i forgor)
-
-• Added Gamebanana release (for promotion)
+[ 2.2.2 Alpha ]
+• Updated the UpdateArcade screen, text shouldn't go off screen now, thats good. sorry 2.2.1-alpah users.
 
 [ Next Update Goals ]
 • Shop

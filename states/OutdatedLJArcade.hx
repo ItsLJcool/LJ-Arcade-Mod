@@ -16,7 +16,7 @@ function create() {
     var data:String = Http.requestUrl('https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/staging/data/changes.txt');
     
     var text = (data == null) ? "Can't get new changelog." : data;
-    var outdatedText:AlphabetOptimized = new AlphabetOptimized(100,100, text, false, 0.35);
+    var outdatedText:AlphabetOptimized = new AlphabetOptimized(75,75, text, false, Math.min(0.6, (FlxG.width - 125) / (5.5 * text.length)));
     add(outdatedText);
 
     anims = ['enter to update', 'space to check github', 'backspace to skip'];
