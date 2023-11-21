@@ -31,6 +31,7 @@ import ModSupport;
 import Array;
 import sys.FileSystem;
 import logging.LogsOverlay;
+import flixel.group.FlxTypedSpriteGroup;
 import DiscordClient;
 
 var editingMod:String = "";
@@ -134,9 +135,7 @@ var tokenText:FlxText;
 var tokenBG:FlxUI9SliceSprite;
 var bgRect:FlxRect;
 
-var menuItemsType = [
-    "freeplay", "shop", "challenges", "options",
-];
+var menuItemsType = [ "freeplay", "shop", "challenges", "options", ];
 
 var ljTokenTweens:Array<FlxTweens> = [];
 function create(modThing:String, ?_modChallengeJust:Dyanimc) {
@@ -195,6 +194,14 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
                 item.setPosition(500, 330);
         }
         item.ID = i;
+        FlxMouseEventManager.add(item, function(){}, function(){
+            selection();
+        }, function(){
+            if (curSel == item.ID) return;
+            FlxG.sound.play(existsInMods("sounds/scrollMenu.ogg", Paths.sound("scrollMenu")));
+            curSel = item.ID;
+            changeSelMenu(0);
+        }, function() {}, true, true, false);
         menuStuff.add(item);
     }
     nothingHere = new FlxText(0,0,0, "There is nothing here at the moment", 32);
@@ -209,6 +216,7 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
         makeSaveData();
         makeNewChallengeCards(-1, true);
     }
+    makeShopItems();
     
 	colorOmogo = new CustomShader(Paths.shader("amongSus", mod));
 	setOmogusShador(colorOmogo, {
@@ -435,6 +443,7 @@ function menuSel() {
                         switch(menuItemsType[item.ID].toLowerCase()) {
                             case "freeplay": if (jsonContent != null) freeplayInit(menuItemsType[item.ID].toLowerCase());
                             case "challenges": if (jsonContent != null) challengesEnter(menuItemsType[item.ID].toLowerCase());
+                            case "shop": doShop();
                             default: 
                                 curSelectedType = menuItemsType[item.ID].toLowerCase();
                                 FlxTween.tween(nothingHere, {alpha: 1}, 0.75, {ease: FlxEase.quadInOut});
@@ -585,9 +594,19 @@ function freeplayEnter(song:String) {
         openSubState(new MenuMessage('Chart for ' + _freeplaySongs[curFreeplaySel].songName + " - " + _freeplaySongs[curFreeplaySel].difficulties[curDifficulty] + ' does not exist.'));
 }
 
+function selection() {
+    switch(curSelectedType.toLowerCase()) {
+        case "menu": menuSel();
+        case "freeplay": if (grpSongs.members != null || grpSongs.members.length != 0) freeplayEnter(grpSongs.members[curFreeplaySel].text);
+        case "challenge_diff": enterChallengeSong(challengeID.songID);
+    }
+}
+
 var curSelectedType:String = "menu";
 var updateTimeChallenges:Float = 0;
+var currentColor = 0xFFFFFFFF;
 function update(elapsed:Float) {
+    bg.color = FlxColor.interpolate(bg.color, currentColor, elapsed*5);
     lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(0.4 * 60 * elapsed, 0, 1)));
     if (Math.abs(lerpScore - intendedScore) <= 10) lerpScore = intendedScore;
     if (scoreText != null) scoreText.text = "PERSONAL BEST:" + lerpScore;
@@ -637,11 +656,7 @@ function update(elapsed:Float) {
         if (curSelectedType.toLowerCase() != "") FlxG.sound.play(existsInMods("sounds/scrollMenu.ogg", Paths.sound("scrollMenu")));
     }
     if (FlxControls.anyJustPressed([13])) {
-        switch(curSelectedType.toLowerCase()) {
-            case "menu": menuSel();
-            case "freeplay": if (grpSongs.members != null || grpSongs.members.length != 0) freeplayEnter(grpSongs.members[curFreeplaySel].text);
-            case "challenge_diff": enterChallengeSong(challengeID.songID);
-        }
+        selection();
     }
     if (FlxControls.anyJustPressed([8, 27])) {
         if (curSelectedType.toLowerCase() == "") return;
@@ -673,6 +688,8 @@ function update(elapsed:Float) {
                     item.visible = false;
                 });
                 canSelectChallenge = true;
+            case "shop":
+                currentColor = 0xFFFFFFFF;
             default:
                 if (curSelectedType.toLowerCase() != "")
                 trace("item isn't here yet: " + curSelectedType.toLowerCase());
@@ -1303,4 +1320,23 @@ function setOmogusShador(shader:CustomShader, colors:Dynamic) {
 			shader.data.enableGradient.value[1] = 1;
 		}
 	}
+}
+
+var shopAssets:FlxTypedSpriteGroup;
+function makeShopItems() {
+    shopAssets = new FlxTypedSpriteGroup();
+    add(shopAssets);
+
+}
+
+/**
+    @param type [0, 1] 0 - Big Square | 1 - Small Square
+**/
+function addNewItems(type:Int) {
+    // var bgSpr = new F
+}
+
+function doShop() {
+    curSelectedType = "shop";
+    currentColor = 0xFF22BE0D;
 }

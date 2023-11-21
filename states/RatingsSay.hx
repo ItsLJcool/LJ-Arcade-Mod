@@ -386,7 +386,7 @@ function ratingsEnd(?loser:Bool) {
 			case 6: addTo = 150;
 			case 5: addTo = 125;
 			case 4: addTo = 100;
-			case 3: addTo = 76;
+			case 3: addTo = 75;
 			case 2: addTo = 50;
 			case 1: addTo = 25;
 			case 0: addTo = 15;
