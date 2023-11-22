@@ -1,6 +1,5 @@
 // a
 import MainMenuState;
-import sys.FileSystem;
 import haxe.io.Path;
 import haxe.Json;
 import flixel.group.FlxTypedGroup;
@@ -86,7 +85,17 @@ var modChallengeJust:Array<Dyanimc> = {hasCompleted: false};
 **/
 var challengesVersion:String = "2.1.2";
 
+var installedMods:Array<String> = FileSystem.readDirectory(Paths.get_modsPath());
 function new(modYay:String, ?_modChallengeJust:Dyanimc) {
+    var toRemove:Array<Dynamic> = [];
+    for (item in installedMods) {
+        if (!FileSystem.isDirectory("mods/"+item)
+        || StringTools.contains(item.toLowerCase(), "yoshicrafterengine")
+        || StringTools.contains(item.toLowerCase(), "crumbcat") // bro really?
+        || StringTools.contains(item.toLowerCase(), mod.toLowerCase()))
+            toRemove.push(item);
+    }
+    for (item in toRemove) installedMods.remove(item);
     if (_modChallengeJust != null) modChallengeJust = _modChallengeJust;
 
 	if (modYay != null) editingMod = modYay;
@@ -197,7 +206,7 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
         FlxMouseEventManager.add(item, function(){}, function(){
             selection();
         }, function(){
-            if (curSel == item.ID) return;
+            if (curSel == item.ID || curSelectedType.toLowerCase() == "") return;
             FlxG.sound.play(existsInMods("sounds/scrollMenu.ogg", Paths.sound("scrollMenu")));
             curSel = item.ID;
             changeSelMenu(0);
@@ -605,6 +614,8 @@ function selection() {
 var curSelectedType:String = "menu";
 var updateTimeChallenges:Float = 0;
 var currentColor = 0xFFFFFFFF;
+
+var scrollY:Float = 0;
 function update(elapsed:Float) {
     bg.color = FlxColor.interpolate(bg.color, currentColor, elapsed*5);
     lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(0.4 * 60 * elapsed, 0, 1)));
@@ -743,6 +754,12 @@ function update(elapsed:Float) {
     if (updateTimeChallenges > 1) {
         updateTimeChallenges = 0;
         checkTimeOnChallenges();
+    }
+
+    if ((shopAssets != null && curSelectedType.toLowerCase() == "shop") || shopSectons != 0) {
+        scrollY += FlxG.mouse.wheel * 50;
+        scrollY = FlxMath.bound(scrollY, Math.min(-(shopAssets.height - 645), 0), (FlxG.height/2 - shopAssets.height/2)*shopSectons);
+        shopAssets.y = FlxMath.lerp(shopAssets.y, -scrollY, CoolUtil.getLerpRatio(0.25));
     }
 }
 var canSelectChallenge:Bool = false;
@@ -1323,17 +1340,45 @@ function setOmogusShador(shader:CustomShader, colors:Dynamic) {
 }
 
 var shopAssets:FlxTypedSpriteGroup;
+var shopSectons:Int = 0;
 function makeShopItems() {
+    curSelectedType = "menu";
+    curSel = 1;
+    selection();
+
     shopAssets = new FlxTypedSpriteGroup();
     add(shopAssets);
-
+    
+    addNewItems(0);
 }
-
 /**
     @param type [0, 1] 0 - Big Square | 1 - Small Square
+    @param data
+    {
+        items: [
+            {
+                type: Int,
+                isSparrow: Bool,
+            },
+        ]
+    }
 **/
-function addNewItems(type:Int) {
-    // var bgSpr = new F
+function addNewItems(data:Dynamic) {
+    var itemShop = new FlxTypedSpriteGroup();
+    insert(members.indexOf(shopAssets)-1, itemShop);
+
+    var size = (data.type == 0) ? new FlxPoint(350, 550) : new FlxPoint(275, 275);
+    var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
+    new Rectangle(0, 0, size.x, size.y), [20, 20, 460, 460]);
+    bgItem.screenCenter();
+    bgItem.alpha = 0.45;
+    bgItem.color = 0xFF000000;
+    itemShop.add(bgItem);
+
+    // var item = new FlxSprite();
+    // itemShop.add(item);
+
+    shopAssets.add(itemShop);
 }
 
 function doShop() {
