@@ -25,6 +25,13 @@ var cheated:Bool = false;
 
 var cardData:Dynamic;
 var properRating = "F";
+
+function testIfCheated() {
+	trace(properRating == "-");
+	trace(playState.rating[0].toLowerCase() == "botplay");
+	trace(playState.rating[0].toLowerCase() == 'n/a');
+	trace(properRating == "-");
+}
 function create(ps:Dynamic) {
 	trace(ps.tokenMult);
     if (ps.tokenMult == null) ps.tokenMult = 1;
@@ -35,6 +42,7 @@ function create(ps:Dynamic) {
 	var thing = (StringTools.contains(playState.acc[1], ":")) ? playState.acc[1].split(":")[1].split("%")[0] : playState.acc[1].split("%")[0];
 	properRating = getScoreReal(thing);
 	cheated = (properRating == "-" || playState.rating[0].toLowerCase() == "botplay" || playState.rating[0].toLowerCase() == 'n/a' || !playState.canDie || !playState.validScore || playState.rating[1] == "-");
+	// testIfCheated();
     var theMod = editingMod;
     if (!Assets.exists(Paths.getLibraryPathForce("ljArcade/editData/RatingsDisplay.hx", "mods/" + theMod))) theMod = mod;
 

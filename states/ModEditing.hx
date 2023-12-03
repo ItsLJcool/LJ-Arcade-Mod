@@ -31,7 +31,7 @@ import Array;
 import sys.FileSystem;
 import logging.LogsOverlay;
 import flixel.group.FlxTypedSpriteGroup;
-import DiscordClient;
+import flixel.FlxCamera;
 
 var editingMod:String = "";
 var menuStuff:FlxTypedGroup<FlxSprite>;
@@ -165,6 +165,10 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
         laScript.loadFile();
         laScript.executeFunc("create", []);
     });
+    
+	camHUD = new FlxCamera();
+	camHUD.bgColor = 0;
+	FlxG.cameras.add(camHUD, false);
 
 	if (FlxG.sound.music == null || !FlxG.sound.music.playing)
         FlxG.sound.playMusic(existsInMods("music/freakyMenu.ogg", Paths.music("freakyMenu")));
@@ -177,6 +181,7 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
 	add(bg);
     
 	ljRanks = new FlxTypedGroup();
+    ljRanks.cameras = [camHUD];
 	add(ljRanks);
     
 	menuStuff = new FlxTypedGroup();
@@ -188,6 +193,7 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
 	modName.updateHitbox();
     modName.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
     modName.setPosition(150, 15);
+    modName.cameras = [camHUD];
     add(modName);
 
     for (i in 0...menuItemsType.length) {
@@ -293,6 +299,16 @@ function create(modThing:String, ?_modChallengeJust:Dyanimc) {
 	rankThing.updateHitbox();
     rankThing.setPosition(rankBG.x + 60, 0);
     ljRanks.add(rankThing);
+
+    var xpBrr = Std.string(save.data.levelSystem.xpData.xp) + "xp / " + Std.string(save.data.levelSystem.xpData.xpToLevelUp)+"xp";
+	var xpStuff = new FlxText(0, 0, 0, xpBrr.toLowerCase(), 16);
+	xpStuff.font = Paths.font("Funkin - No Outline.ttf");
+	xpStuff.scrollFactor.set();
+    xpStuff.alignment = "center";
+    // xpStuff.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1);
+	xpStuff.updateHitbox();
+    xpStuff.setPosition(rankBG.x + 190, rankThing.y + 15);
+    ljRanks.add(xpStuff);
 
     var percent = save.data.levelSystem.xpData.xp/save.data.levelSystem.xpData.xpToLevelUp;
 
@@ -616,6 +632,7 @@ var updateTimeChallenges:Float = 0;
 var currentColor = 0xFFFFFFFF;
 
 var scrollY:Float = 0;
+var mousePrevY:Float = 0;
 function update(elapsed:Float) {
     bg.color = FlxColor.interpolate(bg.color, currentColor, elapsed*5);
     lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(0.4 * 60 * elapsed, 0, 1)));
@@ -756,12 +773,21 @@ function update(elapsed:Float) {
         checkTimeOnChallenges();
     }
 
+
+    if (FlxG.mouse.pressed && FlxG.mouse.justMoved) {
+        scrollY += -(FlxG.mouse.y - mousePrevY)*2;
+    }
+    mousePrevY = FlxG.mouse.y;
+
     if ((shopAssets != null && curSelectedType.toLowerCase() == "shop") || shopSectons != 0) {
         scrollY += FlxG.mouse.wheel * 50;
-        scrollY = FlxMath.bound(scrollY, Math.min(-(shopAssets.height - 645), 0), (FlxG.height/2 - shopAssets.height/2)*shopSectons);
+        scrollY = FlxMath.bound(scrollY, 0, (shopAssets.height - shopAssets.members[shopSectons].height));
         shopAssets.y = FlxMath.lerp(shopAssets.y, -scrollY, CoolUtil.getLerpRatio(0.25));
     }
+    if (targetSprShop != null) selShopSpr.setPosition(targetSprShop.x, targetSprShop.y);
+    else selShopSpr.visible = false;
 }
+
 var canSelectChallenge:Bool = false;
 var challengeDiffValue:Int = 0;
 var challengeID = {};
@@ -1062,14 +1088,14 @@ function makeSaveData() {
         save.data.levelSystem = {
             tokenData: {
                 tokens: 0,
-                version: "1.0.0",
+                version: currentTokenVersion,
             },
             xpData: {
                 level: 1,
                 xp: 0,
                 xpToLevelUp: 250,
                 capLevel: cap,
-                version: "1.0.0",
+                version: currentXPversion,
                 xpLevels: levelsUp,
             }
         };
@@ -1340,7 +1366,8 @@ function setOmogusShador(shader:CustomShader, colors:Dynamic) {
 }
 
 var shopAssets:FlxTypedSpriteGroup;
-var shopSectons:Int = 0;
+var shopSectons:Int = -1;
+var selShopSpr:FlxUI9SliceSprite;
 function makeShopItems() {
     curSelectedType = "menu";
     curSel = 1;
@@ -1349,36 +1376,154 @@ function makeShopItems() {
     shopAssets = new FlxTypedSpriteGroup();
     add(shopAssets);
     
-    addNewItems(0);
+    selShopSpr = new FlxUI9SliceSprite(0,0, Paths.image("SquareOutline"),
+    new Rectangle(0, 0, 500, 500), [20, 20, 460, 460]);
+    selShopSpr.alpha -= 0.2;
+    selShopSpr.screenCenter();
+    selShopSpr.visible = false;
+    add(selShopSpr);
+    
+    addNewItems({type: 0, style: 1, tabName:"Test Tab"});
+    addNewItems({type: 0, style: 2});
 }
 /**
     @param type [0, 1] 0 - Big Square | 1 - Small Square
     @param data
     {
-        items: [
+        tab: [
             {
-                type: Int,
-                isSparrow: Bool,
+                tabName: String,
+                items: [
+                    isSparrow: Bool,
+                    cost: Int
+                ],
+                style: Int,
             },
-        ]
+        ],
+        script: String,
     }
 **/
+/*
+    styles:
+    0 - 1 Big, 4 Small
+    1 - 3 Big
+    2 - 8 Small
+    3 - 2 Big, 4 Small
+*/
+var shopMaxY:Float = 0;
 function addNewItems(data:Dynamic) {
+    shopSectons++;
     var itemShop = new FlxTypedSpriteGroup();
     insert(members.indexOf(shopAssets)-1, itemShop);
 
-    var size = (data.type == 0) ? new FlxPoint(350, 550) : new FlxPoint(275, 275);
-    var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
-    new Rectangle(0, 0, size.x, size.y), [20, 20, 460, 460]);
-    bgItem.screenCenter();
-    bgItem.alpha = 0.45;
-    bgItem.color = 0xFF000000;
-    itemShop.add(bgItem);
+    var size = {
+        big: new FlxPoint(335, 550),
+        small: new FlxPoint(275, 275)
+    };
 
-    // var item = new FlxSprite();
-    // itemShop.add(item);
+    var itms = [];
+    switch(data.style) {
+        case 0:
+            for (i in 0...5) {
+                var sze = (i == 0) ? new FlxPoint(450, 550) : size.small;
+                var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
+                new Rectangle(0, 0, sze.x, sze.y), [20, 20, 460, 460]);
+                switch(i) {
+                    case 1: bgItem.x += itms[0].width;
+                    case 2: bgItem.x += itms[0].width*2 - 175;
+                    case 3:
+                        bgItem.x += itms[0].width;
+                        bgItem.y += bgItem.height;
+                    case 4:
+                        bgItem.x += itms[0].width*2 - 175;
+                        bgItem.y += bgItem.height;
+                }
+                bgItem.x += 60;
+                bgItem.alpha = 0.4;
+                bgItem.color = 0xFF000000;
+                itms.push(bgItem);
+            }
+        case 1:
+            for (i in 0...3) {
+                var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
+                new Rectangle(0, 0, size.big.x, size.big.y), [20, 20, 460, 460]);
+                bgItem.x = bgItem.width*i;
+                bgItem.alpha = 0.4;
+                bgItem.color = 0xFF000000;
+                bgItem.x += 60;
+                itms.push(bgItem);
+            }
+        case 2:
+            for (i in 0...6) {
+                var sze = size.small;
+                var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
+                new Rectangle(0, 0, sze.x, sze.y), [20, 20, 460, 460]);
+                bgItem.x = bgItem.width*(i % 3);
+                if (i > 2) bgItem.y += bgItem.height;
+                bgItem.alpha = 0.4;
+                bgItem.color = 0xFF000000;
+                bgItem.x += 60;
+                itms.push(bgItem);
+            }
+    }
+    for (item in itms) {
+        itemShop.add(item);
+        FlxMouseEventManager.add(item, function(){}, function(){
+            trace("CLICKED");
+        }, function(){
+            selShopItem(item);
+        }, function() {
+            targetSprShop = null;
+        }, true, true, false);
+        
+        var sellable = new FlxSprite();
+        sellable.frames = Paths.getSparrowAtlas("shop/placeHolder");
+        sellable.animation.addByPrefix("idle", "funnyThing instance 1", 12, true);
+        sellable.animation.play("idle");
+        var maxSize = 300;
+        sellable.setGraphicSize(item.frameWidth - 50, (item.frameHeight > maxSize) ? maxSize : item.frameHeight);
+        sellable.scale.set(Math.min(sellable.scale.x, sellable.scale.y), Math.min(sellable.scale.x, sellable.scale.y)); // Thanks math :dies of horrable math death:
+        sellable.setPosition(item.x + item.width/2 - sellable.width/2, item.y + item.height/2 - sellable.height/2);
+        itemShop.add(sellable);
+
+        var token = new FlxSprite(0,0, Paths.image("ljtoken"));
+        token.setGraphicSize(50, 50);
+        token.scale.set(Math.min(token.scale.x, token.scale.y), Math.min(token.scale.x, token.scale.y)); // Thanks math :dies of horrable math death:
+        token.updateHitbox();
+        token.setPosition(item.x + item.width - token.width - 5, item.y + item.height- token.height - 5);
+        itemShop.add(token);
+
+        var cost = new FlxText(0, 0, 0, "100", 20);
+        cost.font = Paths.font("Funkin - No Outline.ttf");
+        cost.updateHitbox();
+        cost.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
+        cost.setPosition(token.x - cost.width - 5, token.y + token.height/2 - cost.height/2);
+        itemShop.add(cost);
+    }
+    
+    if (data.tabName == null || Std.string(data.tabName) == "") data.tabName = "Unammed Tab";
+	var tab = new FlxText(0, 0, 0, Std.string(data.tabName), Math.min(48, (FlxG.width - 5) / (1 * Std.string(data.tabName).length)));
+	tab.font = Paths.font("Funkin - No Outline.ttf");
+	tab.scrollFactor.set();
+	tab.updateHitbox();
+    tab.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
+    tab.setPosition(tab.x + 70, -tab.height);
+    itemShop.add(tab);
+    
+    itemShop.screenCenter();
+    itemShop.x += 75;
+    itemShop.y += 70;
 
     shopAssets.add(itemShop);
+    itemShop.y += (shopAssets.members[shopSectons].height + 50)*shopSectons;
+}
+
+var targetSprShop = null;
+function selShopItem(item) {
+    selShopSpr.visible = true;
+    selShopSpr.resize(item.frameWidth, item.frameHeight);
+    selShopSpr.setPosition(item.x, item.y);
+    targetSprShop = item;
 }
 
 function doShop() {
