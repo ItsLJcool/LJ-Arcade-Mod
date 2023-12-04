@@ -32,6 +32,8 @@ import sys.FileSystem;
 import logging.LogsOverlay;
 import flixel.group.FlxTypedSpriteGroup;
 import flixel.FlxCamera;
+import flixel.util.FlxSpriteUtil;
+import lime.app.Future;
 
 var editingMod:String = "";
 var menuStuff:FlxTypedGroup<FlxSprite>;
@@ -775,7 +777,7 @@ function update(elapsed:Float) {
 
 
     if (FlxG.mouse.pressed && FlxG.mouse.justMoved) {
-        scrollY += -(FlxG.mouse.y - mousePrevY)*2;
+        scrollY += -(FlxG.mouse.y - mousePrevY);
     }
     mousePrevY = FlxG.mouse.y;
 
@@ -1383,33 +1385,90 @@ function makeShopItems() {
     selShopSpr.visible = false;
     add(selShopSpr);
     
-    addNewItems({type: 0, style: 1, tabName:"Test Tab"});
-    addNewItems({type: 0, style: 2});
+    var tests = {
+        tabName: "Test Tab (cool bg)",
+        items: [
+            {
+                cost: 100,
+                bg: "uncommon",
+            },{
+                cost: -1,
+                bg: "common",
+            },{
+                cost: 100,
+                bg: "rare",
+            },{
+                cost: 100,
+                bg: "epic",
+            },{
+                cost: 100,
+                bg: "legendary",
+            },{
+                cost: 100,
+                bg: "legendary",
+            },{
+                cost: 100,
+                bg: "legendary",
+            },{
+                cost: 100,
+                bg: "legendary",
+            },
+        ],
+        tabSet: 0,
+    };
+    addNewItems(tests);
+    tests.tabName = null;
+    tests.tabSet = 1;
+    addNewItems(tests);
+    tests.tabSet = 2;
+    tests.tabName = "AAAAAAAAAAAA";
+    addNewItems(tests);
+    
 }
 /**
     @param type [0, 1] 0 - Big Square | 1 - Small Square
     @param data
     {
-        tab: [
+        tabs: [
             {
                 tabName: String,
                 items: [
-                    isSparrow: Bool,
-                    cost: Int
+                    {
+                        item: String,
+                        cost: Int, // has a limit btw
+                        bg: String, // (Path in `ljArcade/images/`)
+                        sparrow: {
+                            idle: [String, Int],
+                            selected: [String, Int] // not required
+                        },
+                    }
                 ],
-                style: Int,
+                tabSet: Int,
             },
         ],
         script: String,
     }
 **/
 /*
-    styles:
+    tabSet:
     0 - 1 Big, 4 Small
     1 - 3 Big
-    2 - 8 Small
+    2 - 6 Small
     3 - 2 Big, 4 Small
 */
+
+var tabsData = [
+    5, 3, 6, 6,
+];
+
+// use StringTools.relpace() for this
+var defaultTypes:Map = [
+    "uncommon" => "shop/bg/[type]/uncommon",
+    "common" => "shop/bg/[type]/common",
+    "rare" => "shop/bg/[type]/rare",
+    "epic" => "shop/bg/[type]/epic",
+    "legendary" => "shop/bg/[type]/legendary",
+];
 var shopMaxY:Float = 0;
 function addNewItems(data:Dynamic) {
     shopSectons++;
@@ -1422,51 +1481,72 @@ function addNewItems(data:Dynamic) {
     };
 
     var itms = [];
-    switch(data.style) {
-        case 0:
-            for (i in 0...5) {
-                var sze = (i == 0) ? new FlxPoint(450, 550) : size.small;
-                var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
-                new Rectangle(0, 0, sze.x, sze.y), [20, 20, 460, 460]);
-                switch(i) {
-                    case 1: bgItem.x += itms[0].width;
-                    case 2: bgItem.x += itms[0].width*2 - 175;
-                    case 3:
-                        bgItem.x += itms[0].width;
-                        bgItem.y += bgItem.height;
-                    case 4:
-                        bgItem.x += itms[0].width*2 - 175;
-                        bgItem.y += bgItem.height;
-                }
-                bgItem.x += 60;
-                bgItem.alpha = 0.4;
-                bgItem.color = 0xFF000000;
-                itms.push(bgItem);
+    var makeSprites = function(idx, ?func) {
+        if (data.items[idx] == null || data.items[idx].bg == null) {
+            var spr = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
+            new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
+            spr.alpha = 0.4;
+            spr.color = 0xFF000000;
+            spr.ID = idx;
+            itms.push(spr);
+            if (func != null) func(spr);
+            /*
+            // HUH
+            drawRoundRect(sprite:FlxSprite, X:Float, Y:Float, Width:Float, Height:Float, EllipseWidth:Float, EllipseHeight:Float, FillColor:FlxColor = FlxColor.WHITE, ?lineStyle:Null<LineStyle>, ?drawStyle:Null<DrawStyle>):FlxSprite
+            */
+        } else {
+            var bgYes = Std.string(data.items[idx].bg); // replace with `existsInMods` later
+            if (defaultTypes.exists(bgYes.toLowerCase())) {
+                bgYes = bgYes.toLowerCase();
+                var bgType = "normal";
+                bgYes = StringTools.replace(defaultTypes.get(bgYes), "[type]", bgType);
             }
-        case 1:
-            for (i in 0...3) {
-                var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
-                new Rectangle(0, 0, size.big.x, size.big.y), [20, 20, 460, 460]);
-                bgItem.x = bgItem.width*i;
-                bgItem.alpha = 0.4;
-                bgItem.color = 0xFF000000;
-                bgItem.x += 60;
-                itms.push(bgItem);
-            }
-        case 2:
-            for (i in 0...6) {
-                var sze = size.small;
-                var bgItem = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
-                new Rectangle(0, 0, sze.x, sze.y), [20, 20, 460, 460]);
+            var endTest = FlxSpriteUtil.alphaMask(new FlxSprite().makeGraphic(1,1), Paths.image("shop/testShopBG"), Paths.image("SquareShit"));
+            var nineSpliceTest = new FlxUI9SliceSprite(0,0, endTest.pixels,
+            new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
+            nineSpliceTest.ID = idx;
+            itms.push(nineSpliceTest);
+            if (func != null) func(nineSpliceTest);
+        }
+    };
+
+    var amt:Int = data.items.length;
+    if (data.items.length > tabsData[data.tabSet]) amt = tabsData[data.tabSet];
+    for (i in 0...amt) {
+        if (data.items[i].cost == null || data.items[i].cost < 0) data.items[i].cost = "Free";
+        var func = null;
+        switch(data.tabSet) {
+            case 0:
+                func = function(bgItem) {
+                    var sze = (i == 0) ? new FlxPoint(450, 550) : size.small;
+                    bgItem.resize(sze.x, sze.y);
+                    switch(i) {
+                        case 1: bgItem.x += itms[0].width;
+                        case 2: bgItem.x += itms[0].width*2 - 175;
+                        case 3:
+                            bgItem.x += itms[0].width;
+                            bgItem.y += bgItem.height;
+                        case 4:
+                            bgItem.x += itms[0].width*2 - 175;
+                            bgItem.y += bgItem.height;
+                    }
+                };
+            case 1:
+                func = function(bgItem) {
+                    bgItem.resize(size.big.x, size.big.y);
+                    bgItem.x = bgItem.width*i;
+                };
+            case 2: func = function(bgItem) {
+                bgItem.resize(size.small.x, size.small.y);
                 bgItem.x = bgItem.width*(i % 3);
-                if (i > 2) bgItem.y += bgItem.height;
-                bgItem.alpha = 0.4;
-                bgItem.color = 0xFF000000;
-                bgItem.x += 60;
-                itms.push(bgItem);
+                if (i % 2 == 0) bgItem.y += bgItem.height;
+                // so it can go up, down, up, down, etc...
             }
+        }
+        makeSprites(i, func);
     }
-    for (item in itms) {
+    for (i in 0...itms.length) {
+        var item = itms[i];
         itemShop.add(item);
         FlxMouseEventManager.add(item, function(){}, function(){
             trace("CLICKED");
@@ -1475,14 +1555,16 @@ function addNewItems(data:Dynamic) {
         }, function() {
             targetSprShop = null;
         }, true, true, false);
-        
+
         var sellable = new FlxSprite();
         sellable.frames = Paths.getSparrowAtlas("shop/placeHolder");
         sellable.animation.addByPrefix("idle", "funnyThing instance 1", 12, true);
         sellable.animation.play("idle");
+        sellable.antialiasing = true;
         var maxSize = 300;
         sellable.setGraphicSize(item.frameWidth - 50, (item.frameHeight > maxSize) ? maxSize : item.frameHeight);
         sellable.scale.set(Math.min(sellable.scale.x, sellable.scale.y), Math.min(sellable.scale.x, sellable.scale.y)); // Thanks math :dies of horrable math death:
+        sellable.updateHitbox();
         sellable.setPosition(item.x + item.width/2 - sellable.width/2, item.y + item.height/2 - sellable.height/2);
         itemShop.add(sellable);
 
@@ -1493,7 +1575,8 @@ function addNewItems(data:Dynamic) {
         token.setPosition(item.x + item.width - token.width - 5, item.y + item.height- token.height - 5);
         itemShop.add(token);
 
-        var cost = new FlxText(0, 0, 0, "100", 20);
+        var bruh = (Std.string(data.items[i].cost).toLowerCase() == "free") ? "Free" : condenseInt(Std.parseInt(data.items[i].cost));
+        var cost = new FlxText(0, 0, 0, bruh, 20);
         cost.font = Paths.font("Funkin - No Outline.ttf");
         cost.updateHitbox();
         cost.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
@@ -1501,29 +1584,30 @@ function addNewItems(data:Dynamic) {
         itemShop.add(cost);
     }
     
-    if (data.tabName == null || Std.string(data.tabName) == "") data.tabName = "Unammed Tab";
-	var tab = new FlxText(0, 0, 0, Std.string(data.tabName), Math.min(48, (FlxG.width - 5) / (1 * Std.string(data.tabName).length)));
-	tab.font = Paths.font("Funkin - No Outline.ttf");
-	tab.scrollFactor.set();
-	tab.updateHitbox();
-    tab.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
-    tab.setPosition(tab.x + 70, -tab.height);
-    itemShop.add(tab);
+    if (data.tabName != null) {
+        var tab = new FlxText(0, 0, 0, Std.string(data.tabName), Math.min(48, (FlxG.width - 5) / (1 * Std.string(data.tabName).length)));
+        tab.font = Paths.font("Funkin - No Outline.ttf");
+        tab.scrollFactor.set();
+        tab.updateHitbox();
+        tab.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
+        tab.setPosition(tab.x + 20, -tab.height);
+        itemShop.add(tab);
+    }
     
     itemShop.screenCenter();
-    itemShop.x += 75;
+    itemShop.x += 135;
     itemShop.y += 70;
 
     shopAssets.add(itemShop);
-    itemShop.y += (shopAssets.members[shopSectons].height + 50)*shopSectons;
+    itemShop.y += (shopAssets.members[shopSectons].height + 25)*shopSectons;
 }
 
 var targetSprShop = null;
 function selShopItem(item) {
-    selShopSpr.visible = true;
     selShopSpr.resize(item.frameWidth, item.frameHeight);
     selShopSpr.setPosition(item.x, item.y);
     targetSprShop = item;
+    selShopSpr.visible = true;
 }
 
 function doShop() {
