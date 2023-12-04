@@ -604,6 +604,11 @@ var currentColor = 0xFFFFFFFF;
 var scrollY:Float = 0;
 var mousePrevY:Float = 0;
 function update(elapsed:Float) {
+
+    if (FlxG.keys.justPressed.P) {
+        FlxG.switchState(new ModState("ShopArcadeEditTest"));
+    }
+
     bg.color = FlxColor.interpolate(bg.color, currentColor, elapsed*5);
     lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(0.4 * 60 * elapsed, 0, 1)));
     if (Math.abs(lerpScore - intendedScore) <= 10) lerpScore = intendedScore;
@@ -1360,7 +1365,7 @@ function makeShopItems() {
                 cost: 100,
                 bg: "uncommon",
             },{
-                cost: -1,
+                cost: 100,
                 bg: "common",
             },{
                 cost: 100,
@@ -1374,22 +1379,12 @@ function makeShopItems() {
             },{
                 cost: 100,
                 bg: "legendary",
-            },{
-                cost: 100,
-                bg: "legendary",
-            },{
-                cost: 100,
-                bg: "legendary",
-            },
+            }
         ],
-        tabSet: 0,
+        tabSet: 3,
     };
     addNewItems(tests);
-    tests.tabName = null;
-    tests.tabSet = 1;
-    addNewItems(tests);
-    tests.tabSet = 2;
-    tests.tabName = "AAAAAAAAAAAA";
+    tests.tabSet = 0;
     addNewItems(tests);
     
 }
@@ -1422,11 +1417,11 @@ function makeShopItems() {
     0 - 1 Big, 4 Small
     1 - 3 Big
     2 - 6 Small
-    3 - 2 Big, 4 Small
+    3 - 2 Big, 3 Small
 */
 
 var tabsData = [
-    5, 3, 6, 6,
+    5, 3, 6, 5,
 ];
 
 // use StringTools.relpace() for this
@@ -1455,8 +1450,8 @@ function addNewItems(data:Dynamic) {
             new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
             spr.alpha = 0.4;
             spr.color = 0xFF000000;
-            spr.ID = idx;
             itms.push(spr);
+            spr.x = 0; spr.y = 0;
             if (func != null) func(spr);
         } else {
             var bgYes = Std.string(data.items[idx].bg); // replace with `existsInMods` later
@@ -1465,11 +1460,14 @@ function addNewItems(data:Dynamic) {
                 var bgType = "normal";
                 bgYes = StringTools.replace(defaultTypes.get(bgYes), "[type]", bgType);
             }
-            var endTest = FlxSpriteUtil.alphaMask(new FlxSprite().makeGraphic(1,1), Paths.image(bgYes), Paths.image("SquareShit"));
-            var nineSpliceTest = new FlxUI9SliceSprite(0,0, endTest.pixels,
+            // trace(Paths.image(bgYes));
+            var test = new FlxSprite();
+            test.ID = idx;
+            var endTest = FlxSpriteUtil.alphaMask(test, Paths.image(bgYes), Paths.image("SquareShit"));
+            var nineSpliceTest = new FlxUI9SliceSprite(0,0, endTest.graphic,
             new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
-            nineSpliceTest.ID = idx;
             itms.push(nineSpliceTest);
+            nineSpliceTest.x = 0; nineSpliceTest.y = 0;
             if (func != null) func(nineSpliceTest);
         }
     };
@@ -1477,7 +1475,6 @@ function addNewItems(data:Dynamic) {
     var amt:Int = data.items.length;
     if (data.items.length > tabsData[data.tabSet]) amt = tabsData[data.tabSet];
     for (i in 0...amt) {
-        if (data.items[i].cost == null || data.items[i].cost < 0) data.items[i].cost = "Free";
         var func = null;
         switch(data.tabSet) {
             case 0:
@@ -1503,8 +1500,21 @@ function addNewItems(data:Dynamic) {
             case 2: func = function(bgItem) {
                 bgItem.resize(size.small.x, size.small.y);
                 bgItem.x = bgItem.width*(i % 3);
-                if (i % 2 == 1) bgItem.y += bgItem.height;
+                if (i > 2) bgItem.y += bgItem.height;
                 // so it can go up, down, up, down, etc...
+            }
+            case 3: func = function(bgItem) {
+                var big = new FlxPoint(400, 600);
+                var sze = (i < 2) ? big : new FlxPoint(200, 200);
+                bgItem.resize(sze.x, sze.y);
+                
+                bgItem.y = 0;
+                if (i > 1) {
+                    bgItem.x = big.x*2;
+                    bgItem.y = bgItem.height*(i-2);
+                } else {
+                    bgItem.x = bgItem.width*(i);
+                }
             }
         }
         makeSprites(i, func);
@@ -1540,7 +1550,10 @@ function addNewItems(data:Dynamic) {
         token.setPosition(item.x + item.width - token.width - 5, item.y + item.height- token.height - 5);
         itemShop.add(token);
 
-        var bruh = (Std.string(data.items[i].cost).toLowerCase() == "free") ? "Free" : condenseInt(Std.parseInt(data.items[i].cost));
+        data.items[i].cost = Std.parseInt(data.items[i].cost);
+        // no more cost than 1 million !! (might change it later)
+        if (data.items[i].cost > 1000000) data.items[i].cost = 1000000;
+        var bruh = (data.items[i].cost == null || data.items[i].cost < 0) ? "Free" : condenseInt(data.items[i].cost);
         var cost = new FlxText(0, 0, 0, bruh, 20);
         cost.font = Paths.font("Funkin - No Outline.ttf");
         cost.updateHitbox();
@@ -1564,7 +1577,7 @@ function addNewItems(data:Dynamic) {
     itemShop.y += 70;
 
     shopAssets.add(itemShop);
-    itemShop.y += (shopAssets.members[shopSectons].height + 25)*shopSectons;
+    itemShop.y += (shopAssets.members[shopSectons].height + 50)*shopSectons;
 }
 
 var targetSprShop = null;
