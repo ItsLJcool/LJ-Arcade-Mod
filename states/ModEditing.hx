@@ -1465,7 +1465,7 @@ function addNewItems(data:Dynamic) {
                 var bgType = "normal";
                 bgYes = StringTools.replace(defaultTypes.get(bgYes), "[type]", bgType);
             }
-            var endTest = FlxSpriteUtil.alphaMask(new FlxSprite().makeGraphic(1,1), Paths.image("shop/testShopBG"), Paths.image("SquareShit"));
+            var endTest = FlxSpriteUtil.alphaMask(new FlxSprite().makeGraphic(1,1), Paths.image(bgYes), Paths.image("SquareShit"));
             var nineSpliceTest = new FlxUI9SliceSprite(0,0, endTest.pixels,
             new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
             nineSpliceTest.ID = idx;
