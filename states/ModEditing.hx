@@ -52,38 +52,6 @@ var modChallengeJust:Array<Dyanimc> = {hasCompleted: false};
     [2.1.0] - Fixed an issue with challenges for some reason not wanting to complete ;-;
     [2.1.1] - oops i suck at coding
     [2.1.2] - quick reset on saveData.
-
-    # Upcomming
-    [2.2.0] - Might want to make an "XP" System instead of just tokens.
-    Basically Tokens are only gratned from challenges
-    (might also allow them to set how much the challenge gives in tokens. WITH LIMITS)
-    50 - 300 tokens maybe.
-    XP unlocks more challenges, like you can only do 1 challenge a day unless you get like
-    level 10, then you can do 2, level 15 -> 3.
-
-    Levels can be used for the "Battle pass", basically just a roadmap of what you will get
-    with each level. A shop would be cool too.
-
-    Maybe end song whenever you complete challenge option? or wait until user has left the song.
-    Can be edited within the mod or smth.
-
-    [Still `2.2.0`]
-    XP System should be the "Mods" tab (i might even re-do the ModEditing UI lol)
-    You can see the Milestones ahead of time, max level should be capped at lvl 50
-    It should take like 5 - 10 songs to level up once
-    or a system like
-    `lvl 1 - 5`: 2-3 songs to level up
-    `lvl 6 - 20`: 4-5 songs to level up
-    `lvl 21 - 40`: 5-6 songs to level up
-    `lvl 41 - 59`: 8-10 songs to level up
-
-    Each 10 Marker Milestone will unlock something new in the Menu maybe
-    `level 1` - Shop unlock (Buy items)
-    `Level 2` - Unlock Challenges menu
-    `level 5` - Unlock 2nd Challenge
-    `level 15` - Unlock 3rd Challenge (might make it 10)
-    `level 20` - idk (???)
-
 **/
 var challengesVersion:String = "2.1.2";
 
@@ -1490,10 +1458,6 @@ function addNewItems(data:Dynamic) {
             spr.ID = idx;
             itms.push(spr);
             if (func != null) func(spr);
-            /*
-            // HUH
-            drawRoundRect(sprite:FlxSprite, X:Float, Y:Float, Width:Float, Height:Float, EllipseWidth:Float, EllipseHeight:Float, FillColor:FlxColor = FlxColor.WHITE, ?lineStyle:Null<LineStyle>, ?drawStyle:Null<DrawStyle>):FlxSprite
-            */
         } else {
             var bgYes = Std.string(data.items[idx].bg); // replace with `existsInMods` later
             if (defaultTypes.exists(bgYes.toLowerCase())) {
@@ -1550,6 +1514,7 @@ function addNewItems(data:Dynamic) {
         itemShop.add(item);
         FlxMouseEventManager.add(item, function(){}, function(){
             trace("CLICKED");
+            // Add a substate that opens more details about the Item
         }, function(){
             selShopItem(item);
         }, function() {
