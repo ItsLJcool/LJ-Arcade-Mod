@@ -1539,7 +1539,7 @@ function addNewItems(data:Dynamic) {
             case 2: func = function(bgItem) {
                 bgItem.resize(size.small.x, size.small.y);
                 bgItem.x = bgItem.width*(i % 3);
-                if (i % 2 == 0) bgItem.y += bgItem.height;
+                if (i % 2 == 1) bgItem.y += bgItem.height;
                 // so it can go up, down, up, down, etc...
             }
         }
