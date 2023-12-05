@@ -29,10 +29,19 @@ import flixel.addons.ui.StrNameLabel;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import dev_toolbox.ColorPicker;
+
+import flixel.input.mouse.FlxMouseEventManager;
+import flixel.math.FlxRect;
+import flixel.addons.ui.FlxUI9SliceSprite;
+import flixel.group.FlxTypedSpriteGroup;
+import flixel.util.FlxSpriteUtil;
+
 import StringTools;
 
 var bg:FlxSprite;
 var bgScale:Float = 1;
+
+var maxItemShopSize:FlxUI9SliceSprite;
 function create() {
     bg = new FlxSprite(0,0, Paths.image("menuDesat"));
     bg.setGraphicSize(FlxG.width, FlxG.height);
@@ -41,10 +50,30 @@ function create() {
     bg.antialiasing = true;
     add(bg);
 
+    shopAssets = new FlxTypedSpriteGroup();
+    add(shopAssets);
+
+    maxItemShopSize = new FlxUI9SliceSprite(0,0, Paths.image("SquareOutline"),
+    new Rectangle(0, 0, 1000, 600), [20, 20, 460, 460]);
+    maxItemShopSize.screenCenter();
+    // maxItemShopSize.visible = false;
+    add(maxItemShopSize);
+    var minus:Int = 22;
+    var bgMax = new FlxSprite().makeGraphic(maxItemShopSize.frameWidth-minus, maxItemShopSize.frameHeight-minus, 0xFF000000);
+    bgMax.setPosition(maxItemShopSize.x + maxItemShopSize.width/2 - bgMax.width/2, maxItemShopSize.y + maxItemShopSize.height/2 - bgMax.height/2);
+    insert(members.indexOf(maxItemShopSize)-1, bgMax);
+
+
+    for (item in customShop.tabs) {
+        setTabSet(item);
+    }
 
 }
 
 function update(elapsed) {
+    if (FlxG.keys.justPressed.P) {
+        FlxG.switchState(new MainMenuState());
+    }
     if (FlxG.sound.music != null) Conductor.songPosition = FlxG.sound.music.time;
     var lerp = FlxMath.lerp(bgScale + 0.005, bgScale, FlxEase.cubeOut(curDecBeat % 1));
     bg.scale.set(lerp,lerp);
@@ -53,19 +82,98 @@ function update(elapsed) {
 var tabsData = [
     5, 3, 6, 5,
 ];
-var customShop = null;
-function setTabSet(type) {
+// use StringTools.relpace() for this
+var defaultTypes:Map = [
+    "uncommon" => "shop/bg/[type]/uncommon",
+    "common" => "shop/bg/[type]/common",
+    "rare" => "shop/bg/[type]/rare",
+    "epic" => "shop/bg/[type]/epic",
+    "legendary" => "shop/bg/[type]/legendary",
+];
+var customShop = {
+    tabs: [
+        {
+            tabName: "Your Item Shop Tab Name",
+            items: [
+                {
+                    item: "test",
+                    cost: 0,
+                    bgData: {
+                        bg: "uncommon",
+                        type: "square",
+                        flipX: false,
+                        flipY: false,
+                    },
+
+                    // sparrow: null
+                },
+                {
+                    item: "test",
+                    cost: 0,
+                    bgData: {
+                        bg: "common",
+                        type: "normal",
+                        flipX: true,
+                        flipY: true,
+                    },
+                    // sparrow: null
+                },
+                {
+                    item: "test",
+                    cost: 0,
+                    bgData: {
+                        bg: "rare",
+                        type: "normal",
+                        flipX: false,
+                        flipY: true,
+                    },
+                    // sparrow: null
+                },
+                {
+                    item: "test",
+                    cost: 0,
+                    bgData: {
+                        bg: "epic",
+                        type: "normal",
+                        flipX: true,
+                        flipY: false,
+                    },
+                    // sparrow: null
+                },
+                {
+                    item: "test",
+                    cost: 0,
+                    bgData: {
+                        bg: "legendary",
+                        type: "normal",
+                        flipX: false,
+                        flipY: false,
+                    },
+                    // sparrow: null
+                }
+            ],
+            tabSet: 0,
+            modShopScript: null,
+        },
+    ],
+    /*
+        Might be able to make multiple itemShop tabs, for now just 1
+    */
+};
+var shopSectons:Int = -1;
+function setTabSet(data) {
+    shopSectons++;
     var itemShop = new FlxTypedSpriteGroup();
     insert(members.indexOf(shopAssets)-1, itemShop);
 
     var size = {
-        big: new FlxPoint(335, 550),
+        big: new FlxPoint(330, 550),
         small: new FlxPoint(275, 275)
     };
 
     var itms = [];
     var makeSprites = function(idx, ?func) {
-        if (customShop.items[idx] == null || customShop.items[idx].bg == null) {
+        if (data.items[idx] == null || data.items[idx].bgData == null || data.items[idx].bgData.bg == null) {
             var spr = new FlxUI9SliceSprite(0,0, Paths.image("SquareShit"),
             new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
             spr.alpha = 0.4;
@@ -74,13 +182,17 @@ function setTabSet(type) {
             spr.x = 0; spr.y = 0;
             if (func != null) func(spr);
         } else {
-            var bgYes = Std.string(customShop.items[idx].bg); // replace with `existsInMods` later
+            var bgYes = Std.string(data.items[idx].bgData.bg); // replace with `existsInMods` later
+            var flipX = false;
+            var flipY = false;
             if (defaultTypes.exists(bgYes.toLowerCase())) {
                 bgYes = bgYes.toLowerCase();
-                var bgType = "normal";
+                var bgType = (data.items[idx].bgData.type == null) ? "normal" : data.items[idx].bgData.type;
                 bgYes = StringTools.replace(defaultTypes.get(bgYes), "[type]", bgType);
+
+                flipX = (data.items[idx].bgData.flipX == null) ? false : data.items[idx].bgData.flipX;
+                flipY = (data.items[idx].bgData.flipY == null) ? false : data.items[idx].bgData.flipY;
             }
-            // trace(Paths.image(bgYes));
             var test = new FlxSprite();
             test.ID = idx;
             var endTest = FlxSpriteUtil.alphaMask(test, Paths.image(bgYes), Paths.image("SquareShit"));
@@ -88,17 +200,19 @@ function setTabSet(type) {
             new Rectangle(0, 0, size.small.x, size.small.y), [20, 20, 460, 460]);
             itms.push(nineSpliceTest);
             nineSpliceTest.x = 0; nineSpliceTest.y = 0;
+            nineSpliceTest.flipX = flipX; nineSpliceTest.flipY = flipY;
             if (func != null) func(nineSpliceTest);
         }
     };
-    var amt:Int = customShop.items.length;
-    if (customShop.items.length > tabsData[type]) amt = tabsData[type];
+
+    var amt:Int = data.items.length;
+    if (data.items.length > tabsData[data.tabSet]) amt = tabsData[data.tabSet];
     for (i in 0...amt) {
         var func = null;
-        switch(type) {
+        switch(data.tabSet) {
             case 0:
                 func = function(bgItem) {
-                    var sze = (i == 0) ? new FlxPoint(450, 550) : size.small;
+                    var sze = (i == 0) ? new FlxPoint(450, 600) : new FlxPoint(275, 300);
                     bgItem.resize(sze.x, sze.y);
                     switch(i) {
                         case 1: bgItem.x += itms[0].width;
@@ -138,6 +252,64 @@ function setTabSet(type) {
         }
         makeSprites(i, func);
     }
+    for (i in 0...itms.length) {
+        var item = itms[i];
+        itemShop.add(item);
+        FlxMouseEventManager.add(item, function(){}, function(){
+            trace("CLICKED");
+            // Add a substate that opens more details about the Item
+        }, function(){
+            // selShopItem(item);
+        }, function() {
+            // targetSprShop = null;
+        }, true, true, false);
+
+        var sellable = new FlxSprite();
+        sellable.frames = Paths.getSparrowAtlas("shop/placeHolder");
+        sellable.animation.addByPrefix("idle", "funnyThing instance 1", 12, true);
+        sellable.animation.play("idle");
+        sellable.antialiasing = true;
+        var maxSize = 300;
+        sellable.setGraphicSize(item.frameWidth - 50, (item.frameHeight > maxSize) ? maxSize : item.frameHeight);
+        sellable.scale.set(Math.min(sellable.scale.x, sellable.scale.y), Math.min(sellable.scale.x, sellable.scale.y)); // Thanks math :dies of horrable math death:
+        sellable.updateHitbox();
+        sellable.setPosition(item.x + item.width/2 - sellable.width/2, item.y + item.height/2 - sellable.height/2);
+        itemShop.add(sellable);
+
+        var token = new FlxSprite(0,0, Paths.image("ljtoken"));
+        token.setGraphicSize(50, 50);
+        token.scale.set(Math.min(token.scale.x, token.scale.y), Math.min(token.scale.x, token.scale.y)); // Thanks math :dies of horrable math death:
+        token.updateHitbox();
+        token.setPosition(item.x + item.width - token.width - 5, item.y + item.height- token.height - 5);
+        itemShop.add(token);
+
+        data.items[i].cost = Std.parseInt(data.items[i].cost);
+        // no more cost than 1 million !! (might change it later)
+        if (data.items[i].cost > 1000000) data.items[i].cost = 1000000;
+        var bruh = (data.items[i].cost == null || data.items[i].cost < 0) ? "Free" : condenseInt(data.items[i].cost);
+        var cost = new FlxText(0, 0, 0, bruh, 20);
+        cost.font = Paths.font("Funkin - No Outline.ttf");
+        cost.updateHitbox();
+        cost.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
+        cost.setPosition(token.x - cost.width - 5, token.y + token.height/2 - cost.height/2);
+        itemShop.add(cost);
+    }
+    
+    if (data.tabName != null) {
+        var tab = new FlxText(0, 0, 0, Std.string(data.tabName), Math.min(48, (FlxG.width - 5) / (1 * Std.string(data.tabName).length)));
+        tab.font = Paths.font("Funkin - No Outline.ttf");
+        tab.scrollFactor.set();
+        tab.updateHitbox();
+        tab.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 2);
+        tab.setPosition(tab.x + 20, -tab.height);
+        itemShop.add(tab);
+    }
+    
+    itemShop.screenCenter();
+    itemShop.x = maxItemShopSize.x; itemShop.y = maxItemShopSize.y;
+
+    shopAssets.add(itemShop);
+    itemShop.y += (shopAssets.members[shopSectons].height + 50)*shopSectons;
 }
 
 function openDialoguePaths(type:String = 'open') {
@@ -205,6 +377,21 @@ function removeWindow() {
     newWindow.destroy();
     windowBG.destroy();
     uhTab.destroy();
+}
+
+function condenseInt(inted:Int) {
+    inted = Std.parseInt(inted);
+    if (inted < 999) return Std.string(inted);
+    else {
+        if (Math.floor(roundToDecimals(inted/1000000000, 2)) >= 1) {
+            return roundToDecimals(inted/1000000000, 2) + "B"; // how?
+        }
+        if (Math.floor(roundToDecimals(inted/1000000, 2)) >= 1) {
+            return roundToDecimals(inted/1000000, 2) + "M";
+        }
+        return roundToDecimals(inted/1000, 2) + "K";
+    }
+    return "a number, sorry lol";
 }
 
 /*

@@ -1387,6 +1387,7 @@ function makeShopItems() {
     tests.tabSet = 0;
     addNewItems(tests);
     
+    
 }
 /**
     @param type [0, 1] 0 - Big Square | 1 - Small Square
@@ -1409,7 +1410,7 @@ function makeShopItems() {
                 tabSet: Int,
             },
         ],
-        script: String,
+        // script: String,
     }
 **/
 /*
@@ -1439,7 +1440,7 @@ function addNewItems(data:Dynamic) {
     insert(members.indexOf(shopAssets)-1, itemShop);
 
     var size = {
-        big: new FlxPoint(335, 550),
+        big: new FlxPoint(330, 550),
         small: new FlxPoint(275, 275)
     };
 
@@ -1479,7 +1480,7 @@ function addNewItems(data:Dynamic) {
         switch(data.tabSet) {
             case 0:
                 func = function(bgItem) {
-                    var sze = (i == 0) ? new FlxPoint(450, 550) : size.small;
+                    var sze = (i == 0) ? new FlxPoint(450, 600) : new FlxPoint(275, 300);
                     bgItem.resize(sze.x, sze.y);
                     switch(i) {
                         case 1: bgItem.x += itms[0].width;
