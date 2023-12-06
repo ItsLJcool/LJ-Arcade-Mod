@@ -190,12 +190,12 @@ function shopUI() {
             for (itm in item) {
                 if (itm.ID != editingShopItem.ID) continue;
                 FlxMouseEventManager.setObjectMouseEnabled(item, false);
-                FlxMouseEventManager.remove(itm);
             }
             item.kill();
             item.destroy();
             shopAssets.remove(item);
         });
+        FlxMouseEventManager.removeAll();
         setTabSet(customShop.tabs[editingShopItem.section]);
         shopAssets.forEach(function(item) {
             if (item.ID != -1000000*(editingShopItem.section+1)) return;
@@ -304,7 +304,15 @@ var customShop = {
             tabName: "Your Item Shop Tab Name",
             items: [
                 {
-                    item: "test",
+                    itemName: "Test Item",
+                    spritesData: [
+                        {
+                            x: 0,
+                            y: 0,
+                            antialiasing: true,
+                            path: null,
+                        },
+                    ],
                     cost: 0,
                     bgData: {
                         bg: "uncommon",
@@ -315,7 +323,15 @@ var customShop = {
                     // sparrow: null
                 },
                 {
-                    item: "test",
+                    itemName: "Test Item",
+                    spritesData: [
+                        {
+                            x: 0,
+                            y: 0,
+                            antialiasing: true,
+                            path: null,
+                        },
+                    ],
                     cost: 0,
                     bgData: {
                         bg: "common",
@@ -326,7 +342,15 @@ var customShop = {
                     // sparrow: null
                 },
                 {
-                    item: "test",
+                    itemName: "Test Item",
+                    spritesData: [
+                        {
+                            x: 0,
+                            y: 0,
+                            antialiasing: true,
+                            path: null,
+                        },
+                    ],
                     cost: 0,
                     bgData: {
                         bg: "rare",
@@ -337,7 +361,15 @@ var customShop = {
                     // sparrow: null
                 },
                 {
-                    item: "test",
+                    itemName: "Test Item",
+                    spritesData: [
+                        {
+                            x: 0,
+                            y: 0,
+                            antialiasing: true,
+                            path: null,
+                        },
+                    ],
                     cost: 0,
                     bgData: {
                         bg: "epic",
@@ -348,7 +380,34 @@ var customShop = {
                     // sparrow: null
                 },
                 {
-                    item: "test",
+                    itemName: "Test Item",
+                    spritesData: [
+                        {
+                            x: 0,
+                            y: 0,
+                            antialiasing: true,
+                            path: null,
+                        },
+                    ],
+                    cost: 0,
+                    bgData: {
+                        bg: "legendary",
+                        type: "normal",
+                        flipX: false,
+                        flipY: false,
+                    },
+                    // sparrow: null
+                },
+                {
+                    itemName: "Test Item",
+                    spritesData: [
+                        {
+                            x: 0,
+                            y: 0,
+                            antialiasing: true,
+                            path: null,
+                        },
+                    ],
                     cost: 0,
                     bgData: {
                         bg: "legendary",
