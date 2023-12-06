@@ -77,6 +77,7 @@ function create() {
     defaultLerpShopAssets = new FlxPoint(shopAssets.x, shopAssets.y);
 
     shopUI();
+    resetEditingUIdata({ID: 0, section: 0});
 }
 
 var defaultLerpShopAssets:FlxPoint;
@@ -165,7 +166,7 @@ function shopUI() {
     tabStuff.name = "3";
 
     shopEditor.scrollFactor.set();
-    shopEditor.setPosition(25, FlxG.height/2 - shopEditor.height/2);
+    shopEditor.setPosition(5, FlxG.height/2 - shopEditor.height/2);
     shopEditor.resize(300, 300);
     shopEditor.scrollFactor.set();
     shopEditor.addGroup(itemValues);
@@ -188,9 +189,10 @@ function shopUI() {
             if (item.ID != -1000000*(editingShopItem.section+1)) return;
             for (itm in item) {
                 FlxMouseEventManager.remove(itm);
-                item.remove(itm, true);
+                FlxMouseEventManager.setObjectMouseEnabled(item, false);
             }
             item.kill();
+            item.destroy();
             shopAssets.remove(item);
         });
         setTabSet(customShop.tabs[editingShopItem.section]);
@@ -212,15 +214,70 @@ function shopUI() {
     itemValues.add(itemCost);
     itemValues.add(itemCostLabel);
 
+    bgTypesSelect = new FlxUIDropDownMenu(10, 10, [new StrNameLabel("test1", "test2")], function(id) {
+        customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.type = id;
+        shopAssets.members[editingShopItem.section].forEach(function(item) {
+            if (item.ID != editingShopItem.ID) return;
+            if (customShop.tabs[editingShopItem.section].items[editingShopItem.ID] == null || customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData == null || customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.bg == null) {
+                //a
+            } else {
+                var bgYes = Std.string(customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.bg); // replace with `existsInMods` later
+                var flipX = false; var flipY = false;
+                if (defaultTypes.exists(bgYes.toLowerCase())) {
+                    bgYes = bgYes.toLowerCase();
+                    var bgType = (customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.type == null) ? "normal" : customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.type;
+                    bgYes = StringTools.replace(defaultTypes.get(bgYes), "[type]", bgType);
+    
+                    flipX = (customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.flipX == null) ? false : customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.flipX;
+                    flipY = (customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.flipY == null) ? false : customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.flipY;
+                }
+                var endTest = FlxSpriteUtil.alphaMask(new FlxSprite(), Paths.image(bgYes), Paths.image("SquareShit"));
+                var newItem = new FlxUI9SliceSprite(0,0, endTest.graphic,
+                new Rectangle(0, 0, item.frameWidth, item.frameHeight), [20, 20, 460, 460]);
+                newItem.ID = item.ID;
+                newItem.flipX = item.flipX; newItem.flipY = item.flipY;
+                newItem.setPosition(item.x, item.y);
+                shopAssets.members[editingShopItem.section].replace(item, newItem);
+            }
+        });
+    });
+    var bruh = [];
+    for (item in defaultBGtypes) {
+        bruh.push(new StrNameLabel(item, item));
+    }
+    bgTypesSelect.setData(bruh);
+    bgStuff.add(bgTypesSelect);
+    
+    flipXbool = new FlxUICheckBox(bgTypesSelect.width + 10, 10, null, null, "Flip X", 0, null, function () {
+        customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.flipX = flipXbool.checked;
+        shopAssets.members[editingShopItem.section].forEach(function(item) {
+            if (item.ID != editingShopItem.ID) return;
+            item.flipX = flipXbool.checked;
+        });
+    });
+    bgStuff.add(flipXbool);
+    flipYbool = new FlxUICheckBox(bgTypesSelect.width + 10, flipXbool.height + 15, null, null, "Flip Y", 0, null, function () {
+        customShop.tabs[editingShopItem.section].items[editingShopItem.ID].bgData.flipY = flipYbool.checked;
+        shopAssets.members[editingShopItem.section].forEach(function(item) {
+            if (item.ID != editingShopItem.ID) return;
+            item.flipY = flipYbool.checked;
+        });
+    });
+    bgStuff.add(flipYbool);
+
     shopMakerUI.x = -shopMakerUI.width - 50;
 }
+var defaultBGtypes = ["normal", "radial", "square",];
 
 function resetEditingUIdata(nextData) {
-    itemCost.value = customShop.tabs[nextData.section].items[nextData.ID].cost;
+    itemCost.value = (customShop.tabs[nextData.section].items[nextData.ID].cost == null) ? 0 : customShop.tabs[nextData.section].items[nextData.ID].cost;
+    bgTypesSelect.selectedLabel = (customShop.tabs[nextData.section].items[nextData.ID].bgData.type == null) ? "normal" : customShop.tabs[nextData.section].items[nextData.ID].bgData.type;
+    flipXbool.checked = (customShop.tabs[nextData.section].items[nextData.ID].bgData.flipX == null) ? false : customShop.tabs[nextData.section].items[nextData.ID].bgData.flipX;
+    flipYbool.checked = (customShop.tabs[nextData.section].items[nextData.ID].bgData.flipY == null) ? false : customShop.tabs[nextData.section].items[nextData.ID].bgData.flipY;
 }
 
 function selectItemToEdit(item) {
-    var targetZoom:Float = Math.min(FlxG.width / item.width, FlxG.height / item.height);
+    var targetZoom:Float = Math.min(FlxG.width / item.width, FlxG.height / item.height) - 0.1;
     pointCameraZoom = targetZoom;
     var curPos = new FlxPoint(item.x + item.width/2, item.y + item.height/2);
     var travelDistance = new FlxPoint(FlxG.width/2 - curPos.x, FlxG.height/2 - curPos.y);
