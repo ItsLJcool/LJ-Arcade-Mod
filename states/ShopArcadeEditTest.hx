@@ -309,8 +309,16 @@ var customShop = {
                         {
                             x: 0,
                             y: 0,
+                            center: true,
                             antialiasing: true,
                             path: null,
+                            sparrow: {
+                                animated: true,
+                                idle: ["funnyThing instance 1", 24],
+                                selected: ["funnyThing instance 1", 12],
+                            },
+                            alpha: 1,
+                            scale: new FlxPoint(1,1),
                         },
                     ],
                     cost: 0,
@@ -320,7 +328,6 @@ var customShop = {
                         flipX: false,
                         flipY: false,
                     },
-                    // sparrow: null
                 },
                 {
                     itemName: "Test Item",
@@ -328,8 +335,16 @@ var customShop = {
                         {
                             x: 0,
                             y: 0,
+                            center: true,
                             antialiasing: true,
                             path: null,
+                            sparrow: {
+                                animated: true,
+                                idle: ["funnyThing instance 1", 24],
+                                selected: ["funnyThing instance 1", 12],
+                            },
+                            alpha: 1,
+                            scale: new FlxPoint(1,1),
                         },
                     ],
                     cost: 0,
@@ -339,7 +354,6 @@ var customShop = {
                         flipX: true,
                         flipY: true,
                     },
-                    // sparrow: null
                 },
                 {
                     itemName: "Test Item",
@@ -347,8 +361,16 @@ var customShop = {
                         {
                             x: 0,
                             y: 0,
+                            center: true,
                             antialiasing: true,
                             path: null,
+                            sparrow: {
+                                animated: true,
+                                idle: ["funnyThing instance 1", 24],
+                                selected: ["funnyThing instance 1", 12],
+                            },
+                            alpha: 1,
+                            scale: new FlxPoint(1,1),
                         },
                     ],
                     cost: 0,
@@ -358,7 +380,6 @@ var customShop = {
                         flipX: false,
                         flipY: true,
                     },
-                    // sparrow: null
                 },
                 {
                     itemName: "Test Item",
@@ -366,8 +387,16 @@ var customShop = {
                         {
                             x: 0,
                             y: 0,
+                            center: true,
                             antialiasing: true,
                             path: null,
+                            sparrow: {
+                                animated: true,
+                                idle: ["funnyThing instance 1", 24],
+                                selected: ["funnyThing instance 1", 12],
+                            },
+                            alpha: 1,
+                            scale: new FlxPoint(1,1),
                         },
                     ],
                     cost: 0,
@@ -377,7 +406,6 @@ var customShop = {
                         flipX: true,
                         flipY: false,
                     },
-                    // sparrow: null
                 },
                 {
                     itemName: "Test Item",
@@ -385,8 +413,16 @@ var customShop = {
                         {
                             x: 0,
                             y: 0,
+                            center: true,
                             antialiasing: true,
                             path: null,
+                            sparrow: {
+                                animated: true,
+                                idle: ["funnyThing instance 1", 24],
+                                selected: ["funnyThing instance 1", 12],
+                            },
+                            alpha: 1,
+                            scale: new FlxPoint(1,1),
                         },
                     ],
                     cost: 0,
@@ -396,7 +432,6 @@ var customShop = {
                         flipX: false,
                         flipY: false,
                     },
-                    // sparrow: null
                 },
                 {
                     itemName: "Test Item",
@@ -404,8 +439,16 @@ var customShop = {
                         {
                             x: 0,
                             y: 0,
+                            center: true,
                             antialiasing: true,
                             path: null,
+                            sparrow: {
+                                animated: true,
+                                idle: ["funnyThing instance 1", 24],
+                                selected: ["funnyThing instance 1", 12],
+                            },
+                            alpha: 1,
+                            scale: new FlxPoint(1,1),
                         },
                     ],
                     cost: 0,
@@ -415,7 +458,6 @@ var customShop = {
                         flipX: false,
                         flipY: false,
                     },
-                    // sparrow: null
                 }
             ],
             tabSet: 0,
