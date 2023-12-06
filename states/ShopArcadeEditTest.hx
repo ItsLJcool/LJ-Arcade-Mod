@@ -119,7 +119,7 @@ function update(elapsed) {
 function cancelEditing() {
     pointLerpShopAssets = pointCameraZoom = null;
     FlxTween.tween(shopMakerUI, {x: -shopMakerUI.width - 50}, 1, {ease: FlxEase.quadInOut});
-    new FlxTimer().start(1, function() {isEditing = false;});
+    new FlxTimer().start(0.25, function() {isEditing = false;});
 }
 
 function editUpdate(elapsed) {
@@ -188,8 +188,9 @@ function shopUI() {
         shopAssets.forEach(function(item) {
             if (item.ID != -1000000*(editingShopItem.section+1)) return;
             for (itm in item) {
-                FlxMouseEventManager.remove(itm);
+                if (itm.ID != editingShopItem.ID) continue;
                 FlxMouseEventManager.setObjectMouseEnabled(item, false);
+                FlxMouseEventManager.remove(itm);
             }
             item.kill();
             item.destroy();
@@ -626,7 +627,7 @@ function removeWindow() {
             newWindow.destroy();
             windowBG.destroy();
             uhTab.destroy();
-            inWindow = false;
+            new FlxTimer().start(0.15, function() {inWindow = false;});
         });
     });
 }
