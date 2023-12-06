@@ -1554,7 +1554,7 @@ function addNewItems(data:Dynamic) {
         data.items[i].cost = Std.parseInt(data.items[i].cost);
         // no more cost than 1 million !! (might change it later)
         if (data.items[i].cost > 1000000) data.items[i].cost = 1000000;
-        var bruh = (data.items[i].cost == null || data.items[i].cost < 0) ? "Free" : condenseInt(data.items[i].cost);
+        var bruh = (data.items[i].cost == null || data.items[i].cost <= 0) ? "Free" : condenseInt(data.items[i].cost);
         var cost = new FlxText(0, 0, 0, bruh, 20);
         cost.font = Paths.font("Funkin - No Outline.ttf");
         cost.updateHitbox();
