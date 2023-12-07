@@ -307,8 +307,7 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            x: 0,
-                            y: 0,
+                            position: new FlxPoint(0,0);
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -316,6 +315,7 @@ var customShop = {
                                 animated: true,
                                 idle: ["funnyThing instance 1", 24],
                                 selected: ["funnyThing instance 1", 12],
+                                otherAnims: null // Map
                             },
                             alpha: 1,
                             scale: new FlxPoint(1,1),
@@ -333,8 +333,7 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            x: 0,
-                            y: 0,
+                            position: new FlxPoint(0,0);
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -342,6 +341,7 @@ var customShop = {
                                 animated: true,
                                 idle: ["funnyThing instance 1", 24],
                                 selected: ["funnyThing instance 1", 12],
+                                otherAnims: null // Map
                             },
                             alpha: 1,
                             scale: new FlxPoint(1,1),
@@ -359,8 +359,7 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            x: 0,
-                            y: 0,
+                            position: new FlxPoint(0,0);
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -368,6 +367,7 @@ var customShop = {
                                 animated: true,
                                 idle: ["funnyThing instance 1", 24],
                                 selected: ["funnyThing instance 1", 12],
+                                otherAnims: null // Map
                             },
                             alpha: 1,
                             scale: new FlxPoint(1,1),
@@ -385,8 +385,7 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            x: 0,
-                            y: 0,
+                            position: new FlxPoint(0,0);
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -394,6 +393,7 @@ var customShop = {
                                 animated: true,
                                 idle: ["funnyThing instance 1", 24],
                                 selected: ["funnyThing instance 1", 12],
+                                otherAnims: null // Map
                             },
                             alpha: 1,
                             scale: new FlxPoint(1,1),
@@ -411,8 +411,7 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            x: 0,
-                            y: 0,
+                            position: new FlxPoint(0,0);
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -420,6 +419,7 @@ var customShop = {
                                 animated: true,
                                 idle: ["funnyThing instance 1", 24],
                                 selected: ["funnyThing instance 1", 12],
+                                otherAnims: null // Map
                             },
                             alpha: 1,
                             scale: new FlxPoint(1,1),
@@ -437,8 +437,7 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            x: 0,
-                            y: 0,
+                            position: new FlxPoint(0,0);
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -446,6 +445,7 @@ var customShop = {
                                 animated: true,
                                 idle: ["funnyThing instance 1", 24],
                                 selected: ["funnyThing instance 1", 12],
+                                otherAnims: null // Map
                             },
                             alpha: 1,
                             scale: new FlxPoint(1,1),
@@ -592,18 +592,10 @@ function setTabSet(data) {
             // targetSprShop = null;
         }, true, true, false);
 
-        var sellable = new FlxSprite();
-        sellable.frames = Paths.getSparrowAtlas("shop/placeHolder");
-        sellable.animation.addByPrefix("idle", "funnyThing instance 1", 12, true);
-        sellable.animation.play("idle");
-        sellable.antialiasing = true;
-        var maxSize = 300;
-        sellable.setGraphicSize(item.frameWidth - 50, (item.frameHeight > maxSize) ? maxSize : item.frameHeight);
-        sellable.scale.set(Math.min(sellable.scale.x, sellable.scale.y), Math.min(sellable.scale.x, sellable.scale.y)); // Thanks math :dies of horrable math death:
-        sellable.updateHitbox();
-        sellable.setPosition(item.x + item.width/2 - sellable.width/2, item.y + item.height/2 - sellable.height/2);
-        sellable.ID = (-100*(i+1))-0;
-        itemShop.add(sellable);
+        var sellableGroup = new FlxTypedSpriteGroup();
+        sellableGroup.ID = (-100*(i+1));
+        itemShop.add(sellableGroup);
+        setItemShopBGitems(data.items[i].spritesData, sellableGroup, item);
 
         var token = new FlxSprite(0,0, Paths.image("ljtoken"));
         token.setGraphicSize(50, 50);
@@ -641,6 +633,45 @@ function setTabSet(data) {
 
     shopAssets.add(itemShop);
     itemShop.y += (shopAssets.members[shopSectons].height + 50)*shopSectons;
+}
+
+function setItemShopBGitems(spritesData, group, bgSpr) {
+    for (sprData in spritesData) {
+        if (sprData.path == null) {
+            // REPLACE ALL Paths. ITEMS WITH MOD SPECIFIC STUFF!!
+            trace("Sprite does not have a path, setting default");
+            sprData.path = "shop/placeHolder";
+            sprData.sparrow.idle = ["funnyThing instance 1", 24];
+            // continue;
+        }
+        var isSparrow = (sprData.sparrow != null);
+        var sellableItem = new FlxSprite();
+        if (isSparrow) {
+            sellableItem.frames = Paths.getSparrowAtlas(sprData.path);
+            sellableItem.animation.addByPrefix("idle", sprData.sparrow.idle[0], sprData.sparrow.idle[1], true);
+            if (sprData.sparrow.selected != null) sellableItem.animation.addByPrefix("selected", sprData.sparrow.selected[0], sprData.sparrow.selected[1], true);
+            if (sprData.sparrow.otherAnims != null) {
+                for (itm in sprData.sparrow.otherAnims.keys()) {
+                    var animMap = sprData.sparrow.otherAnims[itm];
+                    sellableItem.animation.addByPrefix(itm, animMap[0], animMap[1], animMap[2]);
+                }
+            }
+            sellableItem.animation.play("idle", true);
+        } else {
+            sellableItem.loadGraphic(Path.image(sprData.path));
+        }
+        sellableItem.antialiasing = (sprData.antialiasing == null) ? true : sprData.antialiasing;
+        var scale = (sprData.scale == null) ? new FlxPoint(1,1) : sprData.scale;
+        var pos = (sprData.position == null) ? new FlxPoint(0,0) : sprData.position;
+        sellableItem.scale.set(scale.x, scale.y);
+        sellableItem.updateHitbox();
+        if (sprData.center) sellableItem.setPosition(
+            bgSpr.x + bgSpr.width/2 - sellableItem.width/2,
+            bgSpr.y + bgSpr.height/2 - sellableItem.height/2);
+        else sellableItem.setPosition(pos.x, pos.y);
+        sellableItem.alpha = (sprData.alpha == null) ? 1 : sprData.alpha;
+        group.add(sellableItem);
+    }
 }
 
 function openDialoguePaths(type:String = 'open') {
