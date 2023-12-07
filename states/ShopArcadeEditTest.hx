@@ -686,9 +686,7 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
         }
         sellableItem.antialiasing = (sprData.antialiasing == null) ? true : sprData.antialiasing;
         var scale = (sprData.scale == null) ? new FlxPoint(1,1) : sprData.scale;
-        var pos = (sprData.position == null) ? {
-                                x: 0, y: 0
-                            } : sprData.position;
+        var pos = (sprData.position == null) ? new FlxPoint(0,0) : sprData.position;
 
         var maxSize = new FlxPoint(bgSpr.width - 25, bgSpr.frameHeight - 25);
         sellableItem.setGraphicSize((sellableItem.frameWidth > maxSize.x) ? maxSize.x : sellableItem.frameWidth, (sellableItem.frameHeight > maxSize.y) ? maxSize.y : sellableItem.frameHeight);
