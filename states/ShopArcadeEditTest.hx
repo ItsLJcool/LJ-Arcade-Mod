@@ -307,7 +307,9 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            position: new FlxPoint(0,0);
+                            position: {
+                                x: 0, y: 0
+                            },
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -318,7 +320,9 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: new FlxPoint(1,1),
+                            scale: {
+                                x: 0, y: 0
+                            },
                         },
                     ],
                     cost: 0,
@@ -333,7 +337,9 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            position: new FlxPoint(0,0);
+                            position: {
+                                x: 0, y: 0
+                            },
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -344,7 +350,9 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: new FlxPoint(1,1),
+                            scale: {
+                                x: 0, y: 0
+                            },
                         },
                     ],
                     cost: 0,
@@ -359,7 +367,9 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            position: new FlxPoint(0,0);
+                            position: {
+                                x: 0, y: 0
+                            },
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -370,7 +380,9 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: new FlxPoint(1,1),
+                            scale: {
+                                x: 0, y: 0
+                            },
                         },
                     ],
                     cost: 0,
@@ -385,7 +397,9 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            position: new FlxPoint(0,0);
+                            position: {
+                                x: 0, y: 0
+                            },
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -396,7 +410,9 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: new FlxPoint(1,1),
+                            scale: {
+                                x: 0, y: 0
+                            },
                         },
                     ],
                     cost: 0,
@@ -411,7 +427,9 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            position: new FlxPoint(0,0);
+                            position: {
+                                x: 0, y: 0
+                            },
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -422,7 +440,9 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: new FlxPoint(1,1),
+                            scale: {
+                                x: 0, y: 0
+                            },
                         },
                     ],
                     cost: 0,
@@ -437,7 +457,9 @@ var customShop = {
                     itemName: "Test Item",
                     spritesData: [
                         {
-                            position: new FlxPoint(0,0);
+                            position: {
+                                x: 0, y: 0
+                            },
                             center: true,
                             antialiasing: true,
                             path: null,
@@ -448,7 +470,9 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: new FlxPoint(1,1),
+                            scale: {
+                                x: 0, y: 0
+                            },
                         },
                     ],
                     cost: 0,
@@ -641,10 +665,10 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
             // REPLACE ALL Paths. ITEMS WITH MOD SPECIFIC STUFF!!
             trace("Sprite does not have a path, setting default");
             sprData.path = "shop/placeHolder";
-            sprData.sparrow.idle = ["funnyThing instance 1", 24];
+            sprData.sparrow.idle = ["funnyThing instance 1", 12];
             // continue;
         }
-        var isSparrow = (sprData.sparrow != null);
+        var isSparrow = (sprData.sparrow != null || sprData.sparrow.animated);
         var sellableItem = new FlxSprite();
         if (isSparrow) {
             sellableItem.frames = Paths.getSparrowAtlas(sprData.path);
@@ -662,8 +686,16 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
         }
         sellableItem.antialiasing = (sprData.antialiasing == null) ? true : sprData.antialiasing;
         var scale = (sprData.scale == null) ? new FlxPoint(1,1) : sprData.scale;
-        var pos = (sprData.position == null) ? new FlxPoint(0,0) : sprData.position;
-        sellableItem.scale.set(scale.x, scale.y);
+        var pos = (sprData.position == null) ? {
+                                x: 0, y: 0
+                            } : sprData.position;
+
+        var maxSize = new FlxPoint(bgSpr.width - 25, bgSpr.frameHeight - 25);
+        sellableItem.setGraphicSize((sellableItem.frameWidth > maxSize.x) ? maxSize.x : sellableItem.frameWidth, (sellableItem.frameHeight > maxSize.y) ? maxSize.y : sellableItem.frameHeight);
+        sellableItem.scale.set(Math.min(sellableItem.scale.x, sellableItem.scale.y), Math.min(sellableItem.scale.x, sellableItem.scale.y));
+
+        sellableItem.updateHitbox();
+        sellableItem.scale.x += scale.x; sellableItem.scale.y += scale.y;
         sellableItem.updateHitbox();
         if (sprData.center) sellableItem.setPosition(
             bgSpr.x + bgSpr.width/2 - sellableItem.width/2,
@@ -674,10 +706,11 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
     }
 }
 
-function openDialoguePaths(type:String = 'open') {
+function openDialoguePaths(type:String = 'open', ?openText:String) {
+    if (openText == null) openText = "";
     switch(type.toLowerCase()) {
         case "open":
-            CoolUtil.openDialogue(FileDialogType.OPEN, "Open Your Dialogue.json", function(t) {
+            CoolUtil.openDialogue(FileDialogType.OPEN, openText, function(t) {
                 if (Path.extension(t).toLowerCase() != "json") {
                     trace("You Need To Grab A json File");
                     return;
@@ -692,7 +725,7 @@ function openDialoguePaths(type:String = 'open') {
                 killMePlease.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF000000, 1.5);
             });
         case "save":
-            CoolUtil.openDialogue(FileDialogType.OPEN, "Save Your Dialogue.json", function(t) {
+            CoolUtil.openDialogue(FileDialogType.OPEN, openText, function(t) {
                 if (Path.extension(t).toLowerCase() != "json") {
                     trace("You Need To Grab A json File");
                     return;
