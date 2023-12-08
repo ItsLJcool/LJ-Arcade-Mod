@@ -114,6 +114,8 @@ function update(elapsed) {
     } else {
         //a
     }
+
+    updateShop(elapsed);
 }
 
 function cancelEditing() {
@@ -320,9 +322,6 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: {
-                                x: 0, y: 0
-                            },
                         },
                     ],
                     cost: 0,
@@ -350,9 +349,6 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: {
-                                x: 0, y: 0
-                            },
                         },
                     ],
                     cost: 0,
@@ -380,9 +376,6 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: {
-                                x: 0, y: 0
-                            },
                         },
                     ],
                     cost: 0,
@@ -410,9 +403,6 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: {
-                                x: 0, y: 0
-                            },
                         },
                     ],
                     cost: 0,
@@ -440,9 +430,6 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: {
-                                x: 0, y: 0
-                            },
                         },
                     ],
                     cost: 0,
@@ -470,9 +457,6 @@ var customShop = {
                                 otherAnims: null // Map
                             },
                             alpha: 1,
-                            scale: {
-                                x: 0, y: 0
-                            },
                         },
                     ],
                     cost: 0,
@@ -685,16 +669,13 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
             sellableItem.loadGraphic(Path.image(sprData.path));
         }
         sellableItem.antialiasing = (sprData.antialiasing == null) ? true : sprData.antialiasing;
-        var scale = (sprData.scale == null) ? new FlxPoint(1,1) : sprData.scale;
         var pos = (sprData.position == null) ? new FlxPoint(0,0) : sprData.position;
 
-        var maxSize = new FlxPoint(bgSpr.width - 25, bgSpr.frameHeight - 25);
+        var maxSize = new FlxPoint(bgSpr.frameWidth - 25, bgSpr.frameHeight - 25);
         sellableItem.setGraphicSize((sellableItem.frameWidth > maxSize.x) ? maxSize.x : sellableItem.frameWidth, (sellableItem.frameHeight > maxSize.y) ? maxSize.y : sellableItem.frameHeight);
         sellableItem.scale.set(Math.min(sellableItem.scale.x, sellableItem.scale.y), Math.min(sellableItem.scale.x, sellableItem.scale.y));
+        sellableItem.updateHitbox();
 
-        sellableItem.updateHitbox();
-        sellableItem.scale.x += scale.x; sellableItem.scale.y += scale.y;
-        sellableItem.updateHitbox();
         if (sprData.center) sellableItem.setPosition(
             bgSpr.x + bgSpr.width/2 - sellableItem.width/2,
             bgSpr.y + bgSpr.height/2 - sellableItem.height/2);
@@ -702,6 +683,24 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
         sellableItem.alpha = (sprData.alpha == null) ? 1 : sprData.alpha;
         group.add(sellableItem);
     }
+}
+
+function updateShop(elapsed) {
+    return;
+    shopAssets.forEach(function(shopTab) {
+        var bgAsset = null;
+        for (i in 0...shopTab.members.length) {
+            var item = shopTab.members[i];
+            bgAsset = (item.ID == i) ? item : bgAsset;
+            if (item.ID != (-100*(i+1)) || bgAsset == null) continue;
+            item.forEach(function(sellableItem) {
+                // if (sellableItem.clipRect == null) sellableItem.clipRect = new FlxRect(0, 0, bgAsset.frameWidth, bgAsset.frameHeight);
+                // else {
+                //     sellableItem.clipRect.x
+                // }
+            });
+        }
+    });
 }
 
 function openDialoguePaths(type:String = 'open', ?openText:String) {
