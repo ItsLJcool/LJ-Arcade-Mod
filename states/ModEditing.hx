@@ -1349,7 +1349,7 @@ function makeShopItems() {
     selection();
 
     shopAssets = new FlxTypedSpriteGroup();
-    // add(shopAssets);
+    add(shopAssets);
     
     selShopSpr = new FlxUI9SliceSprite(0,0, Paths.image("SquareOutline"),
     new Rectangle(0, 0, 500, 500), [20, 20, 460, 460]);
