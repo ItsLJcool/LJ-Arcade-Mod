@@ -675,7 +675,6 @@ function setItemShopBGitems(spritesData, group, bgSpr) {
         sellableItem.setGraphicSize((sellableItem.frameWidth > maxSize.x) ? maxSize.x : sellableItem.frameWidth, (sellableItem.frameHeight > maxSize.y) ? maxSize.y : sellableItem.frameHeight);
         sellableItem.scale.set(Math.min(sellableItem.scale.x, sellableItem.scale.y), Math.min(sellableItem.scale.x, sellableItem.scale.y));
         sellableItem.updateHitbox();
-
         if (sprData.center) sellableItem.setPosition(
             bgSpr.x + bgSpr.width/2 - sellableItem.width/2,
             bgSpr.y + bgSpr.height/2 - sellableItem.height/2);
