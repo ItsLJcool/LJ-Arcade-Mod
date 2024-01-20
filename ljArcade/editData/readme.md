@@ -1,6 +1,6 @@
 # Custom Challenges ( THIS GUIDE IS FOR KNOWLAGABLE CODERS!! )
 How to add custom challenges:
-Make a new File called `ChallengesData.hx` ***I Highly Recommend Checking Out [`ljArcade/editData/ChallengesData.hx`](https://github.com/ItsLJcool/LJ-s-Arcade-Mod/blob/main/ljArcade/editData/ChallengesData.hx) for reference***
+Make a new File called `ChallengesData.hx` ***I Highly Recommend Checking Out [`ljArcade/editData/ChallengesData.hx`](https://github.com/ItsLJcool/LJ-s-Arcade-Mod/blob/staging/ljArcade/editData/ChallengesData.hx) for reference***
 
 ## Global Challenges
 This applies to any song, meaning any song can get the attributes you add to it.
