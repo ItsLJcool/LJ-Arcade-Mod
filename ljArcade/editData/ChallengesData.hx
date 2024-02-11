@@ -137,7 +137,6 @@ function update(elapsed:Float) {
         halfWay = true;
         challengeComplete({challengeID: 2});
     }
-    if (FlxG.keys.justPressed.B) EngineSettings.botplay = !EngineSettings.botplay;
 }
 
 function onNoteUpdatePost(note) {
