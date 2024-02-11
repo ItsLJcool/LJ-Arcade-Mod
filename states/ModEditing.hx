@@ -606,7 +606,7 @@ var mousePrevY:Float = 0;
 function update(elapsed:Float) {
 
     if (FlxG.keys.justPressed.P) {
-        FlxG.switchState(new ModState("ShopArcadeEditTest"));
+        FlxG.switchState(new ModState("ShopArcadeEditTest", mod, [editingMod]));
     }
 
     bg.color = FlxColor.interpolate(bg.color, currentColor, elapsed*5);
@@ -1349,7 +1349,7 @@ function makeShopItems() {
     selection();
 
     shopAssets = new FlxTypedSpriteGroup();
-    add(shopAssets);
+    // add(shopAssets);
     
     selShopSpr = new FlxUI9SliceSprite(0,0, Paths.image("SquareOutline"),
     new Rectangle(0, 0, 500, 500), [20, 20, 460, 460]);

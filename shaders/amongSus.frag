@@ -11,8 +11,6 @@ uniform vec3 outlineGradientColor;
 
 uniform vec2 enableGradient;
 
-uniform sampler1D u_texture;
-
 void main() {
     gl_FragColor = flixel_texture2D(bitmap, openfl_TextureCoordv);
     vec3 daFill = fillColor;

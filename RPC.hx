@@ -11,7 +11,9 @@ import sys.Http;
 import sys.FileSystem;
 import StringTools;
 import Date;
+import haxe.io.Path;
 
+var ljEditing:Bool = false;
 function create() {
 
     if (FileSystem.exists("./_cache/")) {
@@ -25,6 +27,10 @@ function create() {
         LogsOverlay.hscript.variables.set("addUpdateRPC", true);
 
         LogsOverlay.hscript.variables.set("ljArcadeVersion", StringTools.trim(Assets.getText(Paths.txt("version")).split("\n")[0]));
+        if (Assets.exists(Paths.txt("ljEditing"))) {
+            var txt = StringTools.trim(Assets.getText(Paths.txt("ljEditing")));
+            if (txt == "true") ljEditing = true;
+        }
 
         var data:String = Http.requestUrl('https://raw.githubusercontent.com/ItsLJcool/LJ-Arcade-Mod/staging/data/version.txt');
         data = StringTools.trim(data.split("\n")[0]);
@@ -89,6 +95,11 @@ function doRPCupdate() {
             smallImageKey: (LogsOverlay.hscript.variables.get("isMostUpToDateArcade")) ? "check_mini" : "minus_mini",
             smallImageText: StringTools.replace(isUpToData, "[ver]", LogsOverlay.hscript.variables.get("ljArcadeVersion")),
         };
+        if (ljEditing) {
+            rpc.details = "Ah, LJ Is making a new state. or somehow broke his game";
+            rpc.smallImageKey = "minus_mini";
+            rpc.smallImageText = "LJ Specific Build (known ver: "+LogsOverlay.hscript.variables.get("ljArcadeVersion")+" )";
+        }
             switch(Type.getClassName(Type.getClass(FlxG.state)).toLowerCase()) {
                 case "playstate":
                     var isPixel = false;
