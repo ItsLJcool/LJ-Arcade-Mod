@@ -104,7 +104,9 @@ function create() {
     add(addNewObj);
     
     var loadTab = new FlxButton(addNewObj.x, addNewObj.y, "Load Shop Tab", function() {
+        canSelObj = false;
         openDialoguePaths("open", "Save Your Tab Set in your YCE Mod!", null, function(data) {
+            canSelObj = true;
             loadNewShopTab(data);
         });
     });
@@ -112,9 +114,13 @@ function create() {
     add(loadTab);
 
     var saveTab = new FlxButton(loadTab.x, loadTab.y, "Save Shop Tab", function() {
+        trace("illegalShop: " + illegalShop);
         if (illegalShop) return;
+        canSelObj = false;
         getProperData();
-        openDialoguePaths("save", "Save Your Tab Set in your YCE Mod!", shopTabData);
+        openDialoguePaths("save", "Save Your Tab Set in your YCE Mod!", shopTabData, function() {
+            canSelObj = true;
+        });
     });
     saveTab.x -= saveTab.width + 15;
     add(saveTab);
@@ -127,20 +133,7 @@ function create() {
 
 function loadNewShopTab(data) {
     shopTabData = data;
-    /**
-        var widthHeight = new FlxPoint(spr.width, spr.height);
 
-        var mask = FlxSpriteUtil.alphaMask(new FlxSprite(),
-        Paths.image("shop/bg/"+folder+"/"+item), Paths.image("SquareShit"));
-        var newSpr = new FlxUI9SliceSprite(0,0, mask.graphic,
-            new Rectangle(0, 0, widthHeight.x, widthHeight.y), [20, 20, 480, 480]);
-        newSpr.ID = spr.ID;
-        newSpr.setPosition(spr.x, spr.y);
-        shopAssets.replace(spr, newSpr);
-        spr.kill();
-        spr.destroy();
-        shopAssets.remove(spr);
-    **/
     shopAssets.forEach(function(spr) {
         spr.kill();
         spr.destroy();
@@ -194,6 +187,7 @@ function snapSpriteToGrid(sprite:FlxSprite, mouseX:Int, mouseY:Int) {
 }
 
 var removingData:Array = [null, null];
+var canSelObj:Bool = true;
 function update(elapsed) {
     if (FlxG.keys.justPressed.P) FlxG.switchState(new MainMenuState());
     if (FlxG.keys.justPressed.O) FlxG.switchState(new ModState("ShopArcadeEditTest", mod, [editingMod]));
@@ -203,7 +197,7 @@ function update(elapsed) {
     bg.scale.set(lerp,lerp);
     shador.data.iMouse.value = [FlxG.mouse.x - 150, FlxG.mouse.y - 50, FlxG.mouse.width, FlxG.mouse.height];
 
-    if (FlxG.mouse.justPressed) {
+    if (FlxG.mouse.justPressed && canSelObj) {
         isSelecingObj = !isSelecingObj;
         shopAssets.forEach(function(item) {
             if (!FlxG.mouse.overlaps(item)) return;
@@ -388,6 +382,10 @@ function editObj() {
 
 function removeItem(spr) {
     isSelecingObj = false;
+    var sprID = spr.ID;
+    var thing = shopTabData.sections[section].bgData[spr.ID];
+    shopAssets.forEach(function(spr) { if (spr.ID > sprID) spr.ID--; });
+    shopTabData.sections[section].bgData.remove(thing);
     FlxTween.tween(spr.scale, {x:0, y:0}, 0.3, {ease: FlxEase.quadOut, onComplete: function() {
         var theThing = shopAssets.remove(spr, true);
         theThing.kill();
@@ -606,6 +604,8 @@ function openDialoguePaths(type:String = 'open', ?openText:String, ?fileToSave:D
                     return;
                 }
                 File.saveContent(t, Json.stringify(fileToSave, null, "\t"));
+                trace("save successful");
+                if (onWindowClose != null) onWindowClose();
             });
     }
 }
